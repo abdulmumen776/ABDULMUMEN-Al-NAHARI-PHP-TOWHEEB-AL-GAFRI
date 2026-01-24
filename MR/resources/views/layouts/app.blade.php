@@ -7,24 +7,24 @@
     <meta name="keywords" content="مراقبة, لوحة تحكم, إدارة, عملاء, عمليات, APIs">
     <meta name="author" content="نظام المراقبة">
     <title>@yield('title', 'نظام المراقبة')</title>
-    
+
     <!-- Google Fonts - Cairo for Arabic -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-    
+
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    
+
     <!-- Alpine.js -->
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
-    
+
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    
+
     <!-- Feather Icons -->
     <script src="https://unpkg.com/feather-icons"></script>
-    
+
     <!-- Custom CSS -->
     <style>
         /* RTL Support */
@@ -32,7 +32,7 @@
             font-family: 'Cairo', sans-serif;
             scroll-behavior: smooth;
         }
-        
+
         /* CSS Variables for Professional Theme */
         :root {
             /* Light Theme */
@@ -46,7 +46,7 @@
             --primary-700: #1d4ed8;
             --primary-800: #1e40af;
             --primary-900: #1e3a8a;
-            
+
             --secondary-50: #f8fafc;
             --secondary-100: #f1f5f9;
             --secondary-200: #e2e8f0;
@@ -57,7 +57,7 @@
             --secondary-700: #334155;
             --secondary-800: #1e293b;
             --secondary-900: #0f172a;
-            
+
             --success-50: #f0fdf4;
             --success-100: #dcfce7;
             --success-200: #bbf7d0;
@@ -68,7 +68,7 @@
             --success-700: #15803d;
             --success-800: #166534;
             --success-900: #14532d;
-            
+
             --warning-50: #fffbeb;
             --warning-100: #fef3c7;
             --warning-200: #fde68a;
@@ -79,7 +79,7 @@
             --warning-700: #b45309;
             --warning-800: #92400e;
             --warning-900: #78350f;
-            
+
             --danger-50: #fef2f2;
             --danger-100: #fee2e2;
             --danger-200: #fecaca;
@@ -90,7 +90,7 @@
             --danger-700: #b91c1c;
             --danger-800: #991b1b;
             --danger-900: #7f1d1d;
-            
+
             --gray-50: #f9fafb;
             --gray-100: #f3f4f6;
             --gray-200: #e5e7eb;
@@ -101,7 +101,7 @@
             --gray-700: #374151;
             --gray-800: #1f2937;
             --gray-900: #111827;
-            
+
             --bg-primary: #ffffff;
             --bg-secondary: #f8fafc;
             --bg-tertiary: #f1f5f9;
@@ -117,7 +117,7 @@
             --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
             --shadow-xl: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
         }
-        
+
         /* Dark Theme */
         [data-theme="dark"] {
             --bg-primary: #0f172a;
@@ -135,7 +135,7 @@
             --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.3), 0 10px 10px -5px rgba(0, 0, 0, 0.2);
             --shadow-xl: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
         }
-        
+
         /* Professional Typography */
         .text-gradient {
             background: linear-gradient(135deg, var(--primary-600) 0%, var(--primary-400) 50%, var(--primary-200) 100%);
@@ -144,7 +144,7 @@
             background-clip: text;
             font-weight: 700;
         }
-        
+
         .text-gradient-success {
             background: linear-gradient(135deg, var(--success-600) 0%, var(--success-400) 50%, var(--success-200) 100%);
             -webkit-background-clip: text;
@@ -152,7 +152,7 @@
             background-clip: text;
             font-weight: 700;
         }
-        
+
         .text-gradient-warning {
             background: linear-gradient(135deg, var(--warning-600) 0%, var(--warning-400) 50%, var(--warning-200) 100%);
             -webkit-background-clip: text;
@@ -160,7 +160,7 @@
             background-clip: text;
             font-weight: 700;
         }
-        
+
         .text-gradient-danger {
             background: linear-gradient(135deg, var(--danger-600) 0%, var(--danger-400) 50%, var(--danger-200) 100%);
             -webkit-background-clip: text;
@@ -168,7 +168,7 @@
             background-clip: text;
             font-weight: 700;
         }
-        
+
         /* Professional Cards */
         .card {
             background: var(--bg-primary);
@@ -179,7 +179,7 @@
             position: relative;
             overflow: hidden;
         }
-        
+
         .card::before {
             content: '';
             position: absolute;
@@ -190,29 +190,29 @@
             background: linear-gradient(90deg, var(--primary-500), var(--primary-600));
             transition: width 0.3s ease;
         }
-        
+
         .card:hover {
             transform: translateY(-4px);
             box-shadow: var(--shadow-lg);
             border-color: var(--primary-200);
         }
-        
+
         .card:hover::before {
             width: 100%;
         }
-        
+
         .card-success::before {
             background: linear-gradient(90deg, var(--success-500), var(--success-600));
         }
-        
+
         .card-warning::before {
             background: linear-gradient(90deg, var(--warning-500), var(--warning-600));
         }
-        
+
         .card-danger::before {
             background: linear-gradient(90deg, var(--danger-500), var(--danger-600));
         }
-        
+
         /* Professional Buttons */
         .btn {
             display: inline-flex;
@@ -230,7 +230,7 @@
             position: relative;
             overflow: hidden;
         }
-        
+
         .btn::before {
             content: '';
             position: absolute;
@@ -242,60 +242,60 @@
             transition: all 0.3s ease;
             transform: translateX(-100%);
         }
-        
+
         .btn:hover::before {
             transform: translateX(0);
         }
-        
+
         .btn-primary {
             background: linear-gradient(135deg, var(--primary-600), var(--primary-500));
             color: white;
             border-color: var(--primary-600);
         }
-        
+
         .btn-primary:hover {
             background: linear-gradient(135deg, var(--primary-700), var(--primary-600));
             transform: translateY(-2px);
             box-shadow: var(--shadow-lg);
         }
-        
+
         .btn-success {
             background: linear-gradient(135deg, var(--success-600), var(--success-500));
             color: white;
             border-color: var(--success-600);
         }
-        
+
         .btn-success:hover {
             background: linear-gradient(135deg, var(--success-700), var(--success-600));
             transform: translateY(-2px);
             box-shadow: var(--shadow-lg);
         }
-        
+
         .btn-danger {
             background: linear-gradient(135deg, var(--danger-600), var(--danger-500));
             color: white;
             border-color: var(--danger-600);
         }
-        
+
         .btn-danger:hover {
             background: linear-gradient(135deg, var(--danger-700), var(--danger-600));
             transform: translateY(-2px);
             box-shadow: var(--shadow-lg);
         }
-        
+
         .btn-outline {
             background: transparent;
             color: var(--primary-600);
             border-color: var(--primary-600);
         }
-        
+
         .btn-outline:hover {
             background: var(--primary-600);
             color: white;
             transform: translateY(-2px);
             box-shadow: var(--shadow-lg);
         }
-        
+
         /* Professional Sidebar */
         .sidebar {
             background: var(--bg-primary);
@@ -303,7 +303,7 @@
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             position: relative;
         }
-        
+
         .sidebar::after {
             content: '';
             position: absolute;
@@ -313,11 +313,11 @@
             height: 100%;
             background: linear-gradient(180deg, transparent, var(--primary-200), transparent);
         }
-        
+
         .sidebar.collapsed {
             width: 4rem;
         }
-        
+
         /* Professional Navigation */
         .nav-item {
             display: flex;
@@ -331,7 +331,7 @@
             position: relative;
             overflow: hidden;
         }
-        
+
         .nav-item::before {
             content: '';
             position: absolute;
@@ -343,29 +343,29 @@
             transition: width 0.3s ease;
             opacity: 0.1;
         }
-        
+
         .nav-item:hover {
             color: var(--primary-600);
             background: var(--primary-50);
             transform: translateX(4px);
         }
-        
+
         .nav-item:hover::before {
             width: 100%;
         }
-        
+
         .nav-item.active {
             color: var(--primary-600);
             background: var(--primary-100);
             font-weight: 600;
             transform: translateX(4px);
         }
-        
+
         .nav-item.active::before {
             width: 100%;
             opacity: 0.2;
         }
-        
+
         /* Professional Notifications */
         .notification {
             animation: slideInRight 0.4s cubic-bezier(0.4, 0, 0.2, 1);
@@ -376,7 +376,7 @@
             position: relative;
             overflow: hidden;
         }
-        
+
         .notification::before {
             content: '';
             position: absolute;
@@ -386,19 +386,19 @@
             height: 100%;
             background: var(--primary-500);
         }
-        
+
         .notification.success::before {
             background: var(--success-500);
         }
-        
+
         .notification.warning::before {
             background: var(--warning-500);
         }
-        
+
         .notification.error::before {
             background: var(--danger-500);
         }
-        
+
         @keyframes slideInRight {
             from {
                 transform: translateX(100%);
@@ -409,7 +409,7 @@
                 opacity: 1;
             }
         }
-        
+
         /* Professional Loading Spinner */
         .loading-spinner {
             width: 40px;
@@ -419,12 +419,12 @@
             border-radius: 50%;
             animation: spin 1s linear infinite;
         }
-        
+
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
-        
+
         /* Professional Tables */
         .table {
             background: var(--bg-primary);
@@ -432,11 +432,11 @@
             border-radius: 0.75rem;
             overflow: hidden;
         }
-        
+
         .table thead {
             background: var(--bg-secondary);
         }
-        
+
         .table th {
             padding: 1rem;
             text-align: right;
@@ -444,18 +444,18 @@
             color: var(--text-primary);
             border-bottom: 1px solid var(--border-primary);
         }
-        
+
         .table td {
             padding: 1rem;
             text-align: right;
             color: var(--text-secondary);
             border-bottom: 1px solid var(--border-primary);
         }
-        
+
         .table tbody tr:hover {
             background: var(--bg-secondary);
         }
-        
+
         /* Professional Forms */
         .form-input {
             background: var(--bg-primary);
@@ -465,17 +465,17 @@
             color: var(--text-primary);
             transition: all 0.2s ease;
         }
-        
+
         .form-input:focus {
             outline: none;
             border-color: var(--primary-500);
             box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
         }
-        
+
         .form-input::placeholder {
             color: var(--text-quaternary);
         }
-        
+
         /* Professional Badges */
         .badge {
             display: inline-flex;
@@ -487,40 +487,40 @@
             line-height: 1;
             transition: all 0.2s ease;
         }
-        
+
         .badge-primary {
             background: var(--primary-100);
             color: var(--primary-800);
         }
-        
+
         .badge-success {
             background: var(--success-100);
             color: var(--success-800);
         }
-        
+
         .badge-warning {
             background: var(--warning-100);
             color: var(--warning-800);
         }
-        
+
         .badge-danger {
             background: var(--danger-100);
             color: var(--danger-800);
         }
-        
+
         /* Professional Progress Bar */
         .progress {
             background: var(--bg-tertiary);
             border-radius: 9999px;
             overflow: hidden;
         }
-        
+
         .progress-bar {
             height: 0.5rem;
             background: linear-gradient(90deg, var(--primary-500), var(--primary-600));
             transition: width 0.3s ease;
         }
-        
+
         /* Responsive Design */
         @media (max-width: 768px) {
             .sidebar {
@@ -531,16 +531,16 @@
                 z-index: 50;
                 transform: translateX(100%);
             }
-            
+
             .sidebar.open {
                 transform: translateX(0);
             }
-            
+
             .main-content {
                 margin-right: 0;
             }
         }
-        
+
         /* Accessibility Improvements */
         .sr-only {
             position: absolute;
@@ -553,13 +553,13 @@
             white-space: nowrap;
             border: 0;
         }
-        
+
         /* Focus Styles */
         *:focus {
             outline: 2px solid var(--primary-500);
             outline-offset: 2px;
         }
-        
+
         /* Skip Link */
         .skip-link {
             position: absolute;
@@ -572,37 +572,39 @@
             border-radius: 4px;
             z-index: 100;
         }
-        
+
         .skip-link:focus {
             top: 0;
         }
-        
+
         /* Print Styles */
         @media print {
             .no-print {
                 display: none !important;
             }
-            
+
             .sidebar {
                 display: none !important;
             }
-            
+
             .main-content {
                 margin: 0 !important;
             }
-            
+
             .card {
                 break-inside: avoid;
             }
         }
     </style>
-    
+
     <!-- CSRF Token -->
     <meta name="csrf-token" content="{{ csrf_token() }}">
 </head>
-<body class="font-sans antialiased font-arabic bg-gray-50" x-data="{ 
+<body class="font-sans antialiased font-arabic bg-gray-50" x-data="{
         darkMode: localStorage.getItem('darkMode') === 'true',
-        sidebarOpen: window.innerWidth >= 768,
+        sidebarOpen: false,
+        openDropdown: null,
+        currentTitle: @json($header ?? null) || localStorage.getItem('currentTitle') || 'لوحة التحكم',
         notifications: [],
         loading: false,
         init() {
@@ -618,6 +620,12 @@
                 document.body.classList.add('dark-mode');
             }
             this.loadNotifications();
+        },
+        setTitle(title) {
+            this.currentTitle = title;
+            localStorage.setItem('currentTitle', title);
+            this.sidebarOpen = false;
+            this.openDropdown = null;
         },
         toggleDarkMode() {
             this.darkMode = !this.darkMode;
@@ -646,7 +654,7 @@
     }" x-cloak>
         <div class="min-h-screen" :class="darkMode ? 'bg-gray-900' : 'bg-gray-50'">
             <!-- Sidebar -->
-            <div class="fixed inset-y-0 right-0 z-50 w-64 glass-effect sidebar-transition transform" 
+            <div class="fixed inset-y-0 right-0 z-50 w-64 glass-effect sidebar-transition transform"
                  :class="sidebarOpen ? 'translate-x-0' : 'translate-x-full'"
                  x-show="sidebarOpen"
                  x-transition:enter="transition ease-in-out duration-300"
@@ -665,30 +673,30 @@
                             </svg>
                         </button>
                     </div>
-                    
+
                     <!-- Sidebar Navigation -->
-                    <nav class="flex-1 p-4 space-y-2" x-data="{ openDropdown: null }">
+                    <nav class="flex-1 p-4 space-y-2">
                         <!-- Dashboard -->
-                        <a href="{{ route('dashboard') }}" class="flex items-center px-4 py-3 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-900 transition-all group">
-                            <svg class="w-5 h-5 ml-3 text-gray-600 dark:text-gray-400 group-hover:text-blue-600 dark:group-hover:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <a href="{{ route('dashboard') }}" @click="setTitle('لوحة التحكم')" class="flex items-center px-4 py-3 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-900 transition-all group">
+                            <svg class="w-5 h-5 ml-3 text-black dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
                             </svg>
-                            <span class="text-gray-700 dark:text-gray-300 group-hover:text-blue-600 dark:group-hover:text-blue-400 font-medium">لوحة التحكم</span>
+                            <span class="text-black dark:text-gray-300 font-medium">لوحة التحكم</span>
                         </a>
 
                         <!-- Clients Dropdown -->
                         <div class="relative">
-                            <button @click="openDropdown = openDropdown === 'clients' ? null : 'clients'" 
+                            <button @click="openDropdown = openDropdown === 'clients' ? null : 'clients'"
                                     class="w-full flex items-center px-4 py-3 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-900 transition-all group">
-                                <svg class="w-5 h-5 ml-3 text-gray-600 dark:text-gray-400 group-hover:text-blue-600 dark:group-hover:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <svg class="w-5 h-5 ml-3 text-black dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
                                 </svg>
-                                <span class="text-gray-700 dark:text-gray-300 group-hover:text-blue-600 dark:group-hover:text-blue-400 font-medium">العملاء</span>
+                                <span class="text-black dark:text-gray-300 font-medium">العملاء</span>
                                 <svg class="w-4 h-4 mr-auto text-gray-400" :class="{'rotate-180': openDropdown === 'clients'}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
                                 </svg>
                             </button>
-                            <div x-show="openDropdown === 'clients'" 
+                            <div x-show="openDropdown === 'clients'"
                                  x-transition:enter="transition ease-out duration-200"
                                  x-transition:enter-start="opacity-0 transform -translate-y-2"
                                  x-transition:enter-end="opacity-100 transform translate-y-0"
@@ -696,10 +704,10 @@
                                  x-transition:leave-start="opacity-100 transform translate-y-0"
                                  x-transition:leave-end="opacity-0 transform -translate-y-2"
                                  class="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 z-50">
-                                <a href="{{ route('clients.index') }}" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-blue-900 rounded-t-lg">
+                                <a href="{{ route('clients.index') }}" @click="setTitle('قائمة العملاء')" class="block px-4 py-2 text-sm text-black dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-blue-900 rounded-t-lg">
                                     قائمة العملاء
                                 </a>
-                                <a href="{{ route('clients.create') }}" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-blue-900">
+                                <a href="{{ route('clients.create') }}" @click="setTitle('إضافة عميل جديد')" class="block px-4 py-2 text-sm text-black dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-blue-900">
                                     إضافة عميل جديد
                                 </a>
                             </div>
@@ -707,17 +715,17 @@
 
                         <!-- Operations Dropdown -->
                         <div class="relative">
-                            <button @click="openDropdown = openDropdown === 'operations' ? null : 'operations'" 
+                            <button @click="openDropdown = openDropdown === 'operations' ? null : 'operations'"
                                     class="w-full flex items-center px-4 py-3 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-900 transition-all group">
-                                <svg class="w-5 h-5 ml-3 text-gray-600 dark:text-gray-400 group-hover:text-blue-600 dark:group-hover:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <svg class="w-5 h-5 ml-3 text-black dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
                                 </svg>
-                                <span class="text-gray-700 dark:text-gray-300 group-hover:text-blue-600 dark:group-hover:text-blue-400 font-medium">العمليات</span>
+                                <span class="text-black dark:text-gray-300 font-medium">العمليات</span>
                                 <svg class="w-4 h-4 mr-auto text-gray-400" :class="{'rotate-180': openDropdown === 'operations'}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
                                 </svg>
                             </button>
-                            <div x-show="openDropdown === 'operations'" 
+                            <div x-show="openDropdown === 'operations'"
                                  x-transition:enter="transition ease-out duration-200"
                                  x-transition:enter-start="opacity-0 transform -translate-y-2"
                                  x-transition:enter-end="opacity-100 transform translate-y-0"
@@ -725,10 +733,10 @@
                                  x-transition:leave-start="opacity-100 transform translate-y-0"
                                  x-transition:leave-end="opacity-0 transform -translate-y-2"
                                  class="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 z-50">
-                                <a href="{{ route('operations.index') }}" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-blue-900 rounded-t-lg">
+                                <a href="{{ route('operations.index') }}" @click="setTitle('قائمة العمليات')" class="block px-4 py-2 text-sm text-black dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-blue-900 rounded-t-lg">
                                     قائمة العمليات
                                 </a>
-                                <a href="{{ route('operations.create') }}" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-blue-900">
+                                <a href="{{ route('operations.create') }}" @click="setTitle('إضافة عملية جديدة')" class="block px-4 py-2 text-sm text-black dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-blue-900">
                                     إضافة عملية جديدة
                                 </a>
                             </div>
@@ -736,17 +744,17 @@
 
                         <!-- APIs Dropdown -->
                         <div class="relative">
-                            <button @click="openDropdown = openDropdown === 'apis' ? null : 'apis'" 
+                            <button @click="openDropdown = openDropdown === 'apis' ? null : 'apis'"
                                     class="w-full flex items-center px-4 py-3 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-900 transition-all group">
-                                <svg class="w-5 h-5 ml-3 text-gray-600 dark:text-gray-400 group-hover:text-blue-600 dark:group-hover:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <svg class="w-5 h-5 ml-3 text-black dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path>
                                 </svg>
-                                <span class="text-gray-700 dark:text-gray-300 group-hover:text-blue-600 dark:group-hover:text-blue-400 font-medium">الـ APIs</span>
+                                <span class="text-black dark:text-gray-300 font-medium">الـ APIs</span>
                                 <svg class="w-4 h-4 mr-auto text-gray-400" :class="{'rotate-180': openDropdown === 'apis'}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
                                 </svg>
                             </button>
-                            <div x-show="openDropdown === 'apis'" 
+                            <div x-show="openDropdown === 'apis'"
                                  x-transition:enter="transition ease-out duration-200"
                                  x-transition:enter-start="opacity-0 transform -translate-y-2"
                                  x-transition:enter-end="opacity-100 transform translate-y-0"
@@ -754,10 +762,10 @@
                                  x-transition:leave-start="opacity-100 transform translate-y-0"
                                  x-transition:leave-end="opacity-0 transform -translate-y-2"
                                  class="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 z-50">
-                                <a href="{{ route('apis.index') }}" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-blue-900 rounded-t-lg">
+                                <a href="{{ route('apis.index') }}" @click="setTitle('قائمة الـ APIs')" class="block px-4 py-2 text-sm text-black dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-blue-900 rounded-t-lg">
                                     قائمة الـ APIs
                                 </a>
-                                <a href="{{ route('apis.create') }}" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-blue-900">
+                                <a href="{{ route('apis.create') }}" @click="setTitle('إضافة API جديد')" class="block px-4 py-2 text-sm text-black dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-blue-900">
                                     إضافة API جديد
                                 </a>
                             </div>
@@ -765,17 +773,17 @@
 
                         <!-- Dashboards Dropdown -->
                         <div class="relative">
-                            <button @click="openDropdown = openDropdown === 'dashboards' ? null : 'dashboards'" 
+                            <button @click="openDropdown = openDropdown === 'dashboards' ? null : 'dashboards'"
                                     class="w-full flex items-center px-4 py-3 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-900 transition-all group">
-                                <svg class="w-5 h-5 ml-3 text-gray-600 dark:text-gray-400 group-hover:text-blue-600 dark:group-hover:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <svg class="w-5 h-5 ml-3 text-black dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
                                 </svg>
-                                <span class="text-gray-700 dark:text-gray-300 group-hover:text-blue-600 dark:group-hover:text-blue-400 font-medium">لوحات التحكم</span>
+                                <span class="text-black dark:text-gray-300 font-medium">لوحات التحكم</span>
                                 <svg class="w-4 h-4 mr-auto text-gray-400" :class="{'rotate-180': openDropdown === 'dashboards'}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
                                 </svg>
                             </button>
-                            <div x-show="openDropdown === 'dashboards'" 
+                            <div x-show="openDropdown === 'dashboards'"
                                  x-transition:enter="transition ease-out duration-200"
                                  x-transition:enter-start="opacity-0 transform -translate-y-2"
                                  x-transition:enter-end="opacity-100 transform translate-y-0"
@@ -783,10 +791,10 @@
                                  x-transition:leave-start="opacity-100 transform translate-y-0"
                                  x-transition:leave-end="opacity-0 transform -translate-y-2"
                                  class="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 z-50">
-                                <a href="{{ route('dashboards.index') }}" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-blue-900 rounded-t-lg">
+                                <a href="{{ route('dashboards.index') }}" @click="setTitle('قائمة لوحات التحكم')" class="block px-4 py-2 text-sm text-black dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-blue-900 rounded-t-lg">
                                     قائمة لوحات التحكم
                                 </a>
-                                <a href="{{ route('dashboards.create') }}" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-blue-900">
+                                <a href="{{ route('dashboards.create') }}" @click="setTitle('إنشاء لوحة تحكم جديدة')" class="block px-4 py-2 text-sm text-black dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-blue-900">
                                     إنشاء لوحة تحكم جديدة
                                 </a>
                             </div>
@@ -794,17 +802,17 @@
 
                         <!-- Alerts Dropdown -->
                         <div class="relative">
-                            <button @click="openDropdown = openDropdown === 'alerts' ? null : 'alerts'" 
+                            <button @click="openDropdown = openDropdown === 'alerts' ? null : 'alerts'"
                                     class="w-full flex items-center px-4 py-3 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-900 transition-all group">
-                                <svg class="w-5 h-5 ml-3 text-gray-600 dark:text-gray-400 group-hover:text-blue-600 dark:group-hover:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <svg class="w-5 h-5 ml-3 text-black dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.732-.833-2.502 0L4.314 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
                                 </svg>
-                                <span class="text-gray-700 dark:text-gray-300 group-hover:text-blue-600 dark:group-hover:text-blue-400 font-medium">التنبيهات</span>
+                                <span class="text-black dark:text-gray-300 font-medium">التنبيهات</span>
                                 <svg class="w-4 h-4 mr-auto text-gray-400" :class="{'rotate-180': openDropdown === 'alerts'}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
                                 </svg>
                             </button>
-                            <div x-show="openDropdown === 'alerts'" 
+                            <div x-show="openDropdown === 'alerts'"
                                  x-transition:enter="transition ease-out duration-200"
                                  x-transition:enter-start="opacity-0 transform -translate-y-2"
                                  x-transition:enter-end="opacity-100 transform translate-y-0"
@@ -812,31 +820,31 @@
                                  x-transition:leave-start="opacity-100 transform translate-y-0"
                                  x-transition:leave-end="opacity-0 transform -translate-y-2"
                                  class="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 z-50">
-                                <a href="{{ route('alerts.index') }}" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-blue-900 rounded-t-lg">
+                                <a href="{{ route('alerts.index') }}" @click="setTitle('قائمة التنبيهات')" class="block px-4 py-2 text-sm text-black dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-blue-900 rounded-t-lg">
                                     قائمة التنبيهات
                                 </a>
-                                <a href="{{ route('alerts.create') }}" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-blue-900">
+                                <a href="{{ route('alerts.create') }}" @click="setTitle('إنشاء تنبيه جديد')" class="block px-4 py-2 text-sm text-black dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-blue-900">
                                     إنشاء تنبيه جديد
                                 </a>
                             </div>
                         </div>
-                        
+
                         <!-- Divider -->
                         <div class="border-t border-gray-200 dark:border-gray-700 my-2"></div>
-                        
+
                         <!-- Security Dropdown -->
                         <div class="relative">
-                            <button @click="openDropdown = openDropdown === 'security' ? null : 'security'" 
+                            <button @click="openDropdown = openDropdown === 'security' ? null : 'security'"
                                     class="w-full flex items-center px-4 py-3 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-900 transition-all group">
-                                <svg class="w-5 h-5 ml-3 text-gray-600 dark:text-gray-400 group-hover:text-blue-600 dark:group-hover:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <svg class="w-5 h-5 ml-3 text-black dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2h12zM4 10h14M4 6h14"></path>
                                 </svg>
-                                <span class="text-gray-700 dark:text-gray-300 group-hover:text-blue-600 dark:group-hover:text-blue-400 font-medium">الأمان</span>
+                                <span class="text-black dark:text-gray-300 font-medium">الأمان</span>
                                 <svg class="w-4 h-4 mr-auto text-gray-400" :class="{'rotate-180': openDropdown === 'security'}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
                                 </svg>
                             </button>
-                            <div x-show="openDropdown === 'security'" 
+                            <div x-show="openDropdown === 'security'"
                                  x-transition:enter="transition ease-out duration-200"
                                  x-transition:enter-start="opacity-0 transform -translate-y-2"
                                  x-transition:enter-end="opacity-100 transform translate-y-0"
@@ -844,10 +852,10 @@
                                  x-transition:leave-start="opacity-100 transform translate-y-0"
                                  x-transition:leave-end="opacity-0 transform -translate-y-2"
                                  class="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 z-50">
-                                <a href="{{ route('security.index') }}" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-blue-900 rounded-t-lg">
+                                <a href="{{ route('security.index') }}" @click="setTitle('قائمة إعدادات الأمان')" class="block px-4 py-2 text-sm text-black dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-blue-900 rounded-t-lg">
                                     قائمة إعدادات الأمان
                                 </a>
-                                <a href="{{ route('security.create') }}" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-blue-900">
+                                <a href="{{ route('security.create') }}" @click="setTitle('إنشاء إعداد أمان جديد')" class="block px-4 py-2 text-sm text-black dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-blue-900">
                                     إنشاء إعداد أمان جديد
                                 </a>
                             </div>
@@ -855,17 +863,17 @@
 
                         <!-- Tokens Dropdown -->
                         <div class="relative">
-                            <button @click="openDropdown = openDropdown === 'tokens' ? null : 'tokens'" 
+                            <button @click="openDropdown = openDropdown === 'tokens' ? null : 'tokens'"
                                     class="w-full flex items-center px-4 py-3 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-900 transition-all group">
-                                <svg class="w-5 h-5 ml-3 text-gray-600 dark:text-gray-400 group-hover:text-blue-600 dark:group-hover:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <svg class="w-5 h-5 ml-3 text-black dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7h2a5 5 0 013.9 8.1L15 17M7 7h2a5 5 0 00-3.9 8.1L9 17"></path>
                                 </svg>
-                                <span class="text-gray-700 dark:text-gray-300 group-hover:text-blue-600 dark:group-hover:text-blue-400 font-medium">التوكنات</span>
+                                <span class="text-black dark:text-gray-300 font-medium">التوكنات</span>
                                 <svg class="w-4 h-4 mr-auto text-gray-400" :class="{'rotate-180': openDropdown === 'tokens'}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
                                 </svg>
                             </button>
-                            <div x-show="openDropdown === 'tokens'" 
+                            <div x-show="openDropdown === 'tokens'"
                                  x-transition:enter="transition ease-out duration-200"
                                  x-transition:enter-start="opacity-0 transform -translate-y-2"
                                  x-transition:enter-end="opacity-100 transform translate-y-0"
@@ -873,16 +881,16 @@
                                  x-transition:leave-start="opacity-100 transform translate-y-0"
                                  x-transition:leave-end="opacity-0 transform -translate-y-2"
                                  class="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 z-50">
-                                <a href="{{ route('tokens.index') }}" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-blue-900 rounded-t-lg">
+                                <a href="{{ route('tokens.index') }}" @click="setTitle('قائمة التوكنات')" class="block px-4 py-2 text-sm text-black dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-blue-900 rounded-t-lg">
                                     قائمة التوكنات
                                 </a>
-                                <a href="{{ route('tokens.create') }}" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-blue-900">
+                                <a href="{{ route('tokens.create') }}" @click="setTitle('إنشاء توكن جديد')" class="block px-4 py-2 text-sm text-black dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-blue-900">
                                     إنشاء توكن جديد
                                 </a>
                             </div>
                         </div>
                     </nav>
-                    
+
                     <!-- Sidebar Footer -->
                     <div class="p-4 border-t" :class="darkMode ? 'border-gray-700' : 'border-gray-200'">
                         <div class="flex items-center justify-between">
@@ -905,17 +913,17 @@
             <!-- Main Content -->
             <div class="flex-1" :class="sidebarOpen ? 'mr-64' : ''">
                 <!-- Top Navigation -->
-                <header class="glass-effect border-b" :class="darkMode ? 'border-gray-700' : 'border-gray-200'">
-                    <div class="flex items-center justify-between px-4 sm:px-6 lg:px-8 py-4">
+                <header class="border-b sticky top-0 right-0 left-0 z-50 backdrop-blur-sm shadow-sm transition-all" :class="darkMode ? 'border-gray-700 bg-slate-900/85' : 'border-gray-200 bg-white/85'">
+                    <div class="flex items-center justify-between px-4 sm:px-6 lg:px-8 py-2.5">
                         <div class="flex items-center">
-                            <button @click="toggleSidebar()" class="p-2 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700">
+                            <button @click="toggleSidebar()" class="p-2 rounded-lg">
                                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
                                 </svg>
                             </button>
-                            <h1 class="text-2xl font-bold mr-4 text-gradient">{{ $header ?? 'لوحة التحكم' }}</h1>
+                            <h1 class="text-2xl font-bold mr-4 text-gradient" x-text="currentTitle">{{ $header ?? 'لوحة التحكم' }}</h1>
                         </div>
-                        
+
                         <div class="flex items-center space-x-4">
                             <!-- Notifications -->
                             <div class="relative">
@@ -926,7 +934,7 @@
                                     <span class="absolute top-0 right-0 w-3 h-3 bg-red-500 rounded-full notification-badge"></span>
                                 </button>
                             </div>
-                            
+
                             <!-- User Menu -->
                             <div class="relative">
                                 <button class="flex items-center p-2 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700">
@@ -974,7 +982,7 @@
                     <!-- Notifications -->
                     <div class="fixed top-20 left-4 z-50 space-y-2">
                         <template x-for="notification in notifications" :key="notification.id">
-                            <div x-show="notification.show" 
+                            <div x-show="notification.show"
                                  x-transition:enter="transition ease-out duration-300"
                                  x-transition:enter-start="opacity-0 transform translate-x-full"
                                  x-transition:enter-end="opacity-100 transform translate-x-0"

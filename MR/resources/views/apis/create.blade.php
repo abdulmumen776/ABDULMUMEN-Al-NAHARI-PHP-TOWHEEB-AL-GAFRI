@@ -8,14 +8,21 @@
 @section('content')
     <div x-data="apiForm()" x-init="init()" x-cloak>
         <!-- Header Section -->
-        <div class="card p-8 mb-8 bg-gradient-to-r from-cyan-500 to-blue-600 text-white">
-            <div class="flex items-center justify-between">
+        <div class="card relative overflow-hidden p-8 mb-8 bg-gradient-to-br from-slate-900 via-blue-900 to-cyan-700 text-white shadow-xl">
+            <div class="absolute inset-0 opacity-25">
+                <div class="absolute -top-10 -right-10 h-40 w-40 rounded-full bg-white/30 blur-2xl"></div>
+                <div class="absolute bottom-0 left-0 h-56 w-56 rounded-full bg-cyan-300/40 blur-3xl"></div>
+            </div>
+            <div class="relative flex items-center justify-between">
                 <div>
-                    <h1 class="text-3xl font-bold mb-2">إضافة API جديد</h1>
+                    <div class="inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-1 text-xs font-semibold uppercase tracking-widest">
+                        New API
+                    </div>
+                    <h1 class="mt-3 text-3xl font-extrabold mb-2">إضافة API جديد</h1>
                     <p class="text-cyan-100">املأ النموذج التالي لإضافة API جديد إلى نظام المراقبة</p>
                 </div>
                 <div class="hidden lg:block">
-                    <div class="w-24 h-24 bg-white bg-opacity-20 rounded-full flex items-center justify-center">
+                    <div class="w-24 h-24 bg-white/15 rounded-2xl flex items-center justify-center shadow-lg">
                         <svg class="w-12 h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path>
                         </svg>
@@ -25,14 +32,14 @@
         </div>
 
         <!-- Form Section -->
-        <div class="card p-8">
+        <div class="card p-8 bg-white/80 backdrop-blur-md border border-slate-200/70">
             <form action="{{ route('apis.store') }}" method="POST" @submit.prevent="submitForm">
                 @csrf
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
                     <!-- Left Column -->
                     <div class="space-y-6">
                         <!-- Basic Information -->
-                        <div class="bg-gray-50 dark:bg-gray-800 rounded-xl p-6">
+                        <div class="rounded-2xl border border-slate-200/70 bg-white/70 p-6 shadow-sm transition hover:shadow-md dark:border-gray-700 dark:bg-gray-800/70">
                             <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-4">معلومات أساسية</h3>
                             
                             <div class="space-y-4">
@@ -96,7 +103,7 @@
                         </div>
 
                         <!-- Endpoint Information -->
-                        <div class="bg-gray-50 dark:bg-gray-800 rounded-xl p-6">
+                        <div class="rounded-2xl border border-slate-200/70 bg-white/70 p-6 shadow-sm transition hover:shadow-md dark:border-gray-700 dark:bg-gray-800/70">
                             <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-4">معلومات النقطة النهائية</h3>
                             
                             <div class="space-y-4">
@@ -165,7 +172,7 @@
                     <!-- Right Column -->
                     <div class="space-y-6">
                         <!-- Authentication -->
-                        <div class="bg-gray-50 dark:bg-gray-800 rounded-xl p-6">
+                        <div class="rounded-2xl border border-slate-200/70 bg-white/70 p-6 shadow-sm transition hover:shadow-md dark:border-gray-700 dark:bg-gray-800/70">
                             <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-4">المصادقة والأمان</h3>
                             
                             <div class="space-y-4">
@@ -257,7 +264,7 @@
                         </div>
 
                         <!-- Monitoring Settings -->
-                        <div class="bg-gray-50 dark:bg-gray-800 rounded-xl p-6">
+                        <div class="rounded-2xl border border-slate-200/70 bg-white/70 p-6 shadow-sm transition hover:shadow-md dark:border-gray-700 dark:bg-gray-800/70">
                             <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-4">إعدادات المراقبة</h3>
                             
                             <div class="space-y-4">
@@ -320,7 +327,7 @@
                         </div>
 
                         <!-- Headers -->
-                        <div class="bg-gray-50 dark:bg-gray-800 rounded-xl p-6">
+                        <div class="rounded-2xl border border-slate-200/70 bg-white/70 p-6 shadow-sm transition hover:shadow-md dark:border-gray-700 dark:bg-gray-800/70">
                             <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-4">الرؤوس الافتراضية</h3>
                             
                             <div class="space-y-4">
@@ -337,7 +344,7 @@
                         </div>
 
                         <!-- Description -->
-                        <div class="bg-gray-50 dark:bg-gray-800 rounded-xl p-6">
+                        <div class="rounded-2xl border border-slate-200/70 bg-white/70 p-6 shadow-sm transition hover:shadow-md dark:border-gray-700 dark:bg-gray-800/70">
                             <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-4">الوصف والملاحظات</h3>
                             
                             <div class="space-y-4">
@@ -364,7 +371,7 @@
                         </div>
 
                         <!-- Settings -->
-                        <div class="bg-gray-50 dark:bg-gray-800 rounded-xl p-6">
+                        <div class="rounded-2xl border border-slate-200/70 bg-white/70 p-6 shadow-sm transition hover:shadow-md dark:border-gray-700 dark:bg-gray-800/70">
                             <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-4">الإعدادات المتقدمة</h3>
                             
                             <div class="space-y-4">
