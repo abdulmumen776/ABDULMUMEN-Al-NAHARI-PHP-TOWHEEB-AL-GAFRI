@@ -104,8 +104,7 @@
                 </div>
             </div>
 
-            <!-- Daily Views -->
-            <div class="bg-white rounded-xl shadow-lg p-6 card-hover" :class="darkMode ? 'bg-gray-800' : ''">
+             <div class="bg-white rounded-xl shadow-lg p-6 card-hover" :class="darkMode ? 'bg-gray-800' : ''">
                 <div class="flex items-center justify-between">
                     <div>
                         <p class="text-sm font-medium" :class="darkMode ? 'text-gray-400' : 'text-gray-600'">المشاهدات اليوم</p>

@@ -210,13 +210,9 @@
                 async loadTokens() {
                     this.loading = true;
                     try {
-                        const response = await fetch('/api/tokens');
-                        const data = await response.json();
-                        this.tokens = data.tokens.map(token => ({
-                            ...token,
-                            status_text: this.getStatusText(token.status),
-                            formatted_token: this.formatToken(token.token)
-                        }));
+                        // Use tokens data passed from controller instead of API call
+                        this.tokens = @json($tokens);
+                        this.filteredTokens = [...this.tokens];
                     } catch (error) {
                         console.error('Failed to load tokens:', error);
                         this.$root.showNotification('فشل تحميل التوكنات', 'error');
@@ -227,10 +223,11 @@
                 
                 async loadStatistics() {
                     try {
-                        const response = await fetch('/api/tokens/statistics');
-                        this.statistics = await response.json();
+                        // Use statistics data passed from controller instead of API call
+                        this.statistics = @json($statistics);
                     } catch (error) {
                         console.error('Failed to load statistics:', error);
+                        this.$root.showNotification('فشل تحميل الإحصائيات', 'error');
                     }
                 },
                 

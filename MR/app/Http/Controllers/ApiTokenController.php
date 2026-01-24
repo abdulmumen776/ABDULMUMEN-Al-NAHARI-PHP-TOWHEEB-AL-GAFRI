@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\ApiToken;
+use App\Models\Client;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
@@ -17,7 +18,47 @@ class ApiTokenController extends Controller
      */
     public function index()
     {
-        return view('tokens.index');
+        $tokens = Auth::user()->apiTokens()
+            ->orderByDesc('created_at')
+            ->get()
+            ->map(function ($token) {
+                return [
+                    'id' => $token->id,
+                    'name' => $token->name,
+                    'formatted_token' => $token->formatted_token,
+                    'abilities' => $token->abilities,
+                    'status' => $token->status,
+                    'status_color' => $token->status_color,
+                    'last_used_at' => $token->last_used_at,
+                    'days_since_last_use' => $token->days_since_last_use,
+                    'expires_at' => $token->expires_at,
+                    'remaining_days' => $token->remaining_days,
+                    'created_at' => $token->created_at,
+                    'usage_stats' => $token->usage_stats,
+                ];
+            });
+
+        $statistics = [
+            'total_tokens' => Auth::user()->apiTokens()->count(),
+            'active_tokens' => Auth::user()->apiTokens()->valid()->count(),
+            'expired_tokens' => Auth::user()->apiTokens()->expired()->count(),
+            'inactive_tokens' => Auth::user()->apiTokens()->filter(fn($token) => $token->isInactive())->count(),
+            'tokens_expiring_soon' => Auth::user()->apiTokens()->valid()
+                ->where('expires_at', '<=', now()->addDays(7))
+                ->count(),
+            'never_used_tokens' => Auth::user()->apiTokens()->whereNull('last_used_at')->count(),
+        ];
+
+        return view('tokens.index', compact('tokens', 'statistics'));
+    }
+
+    /**
+     * Show the form for creating a new API token.
+     */
+    public function create()
+    {
+        $clients = Client::all(['id', 'name']);
+        return view('tokens.create', compact('clients'));
     }
 
     /**

@@ -16,7 +16,38 @@ class OperationController extends Controller
      */
     public function index()
     {
-        return view('operations.index');
+        $operations = Operation::with('client')
+            ->orderByDesc('created_at')
+            ->get()
+            ->map(function (Operation $operation) {
+                return [
+                    'id' => $operation->id,
+                    'name' => $operation->name,
+                    'client_id' => $operation->client_id,
+                    'client_name' => $operation->client->name ?? 'N/A',
+                    'type' => $operation->type,
+                    'status' => $operation->status,
+                    'priority' => $operation->priority,
+                    'description' => $operation->description,
+                    'created_at' => optional($operation->created_at)->toDateString(),
+                ];
+            });
+
+        $statistics = [
+            'success_rate' => 0, // Calculate based on completed vs total
+            'completed_operations' => Operation::where('status', 'completed')->count(),
+            'active_operations' => Operation::where('status', 'active')->count(),
+            'total_operations' => Operation::count(),
+        ];
+
+        // Calculate success rate
+        if ($statistics['total_operations'] > 0) {
+            $statistics['success_rate'] = round(($statistics['completed_operations'] / $statistics['total_operations']) * 100, 1);
+        }
+
+        $clients = Client::all(['id', 'name']);
+
+        return view('operations.index', compact('operations', 'statistics', 'clients'));
     }
 
     /**

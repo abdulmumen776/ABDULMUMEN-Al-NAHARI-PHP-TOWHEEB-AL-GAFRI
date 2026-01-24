@@ -16,7 +16,31 @@ class ClientController extends Controller
      */
     public function index()
     {
-        return view('clients.index');
+        $clients = Client::withCount(['operations', 'apis'])
+            ->orderByDesc('created_at')
+            ->get()
+            ->map(function (Client $client) {
+                return [
+                    'id' => $client->id,
+                    'name' => $client->name,
+                    'contact_email' => $client->contact_email,
+                    'contact_phone' => $client->contact_phone,
+                    'status' => $client->status,
+                    'industry' => $client->industry,
+                    'operations_count' => $client->operations_count,
+                    'apis_count' => $client->apis_count,
+                    'created_at' => optional($client->created_at)->toDateString(),
+                ];
+            });
+
+        $statistics = [
+            'total_clients' => Client::count(),
+            'active_clients' => Client::where('status', 'active')->count(),
+            'total_operations' => Operation::count(),
+            'total_apis' => Api::count(),
+        ];
+
+        return view('clients.index', compact('clients', 'statistics'));
     }
 
     /**
@@ -30,7 +54,7 @@ class ClientController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request): JsonResponse
+    public function store(Request $request)
     {
         try {
             $validated = $request->validate([
@@ -48,22 +72,39 @@ class ClientController extends Controller
                 'client_name' => $client->name
             ]);
 
-            return response()->json([
-                'success' => true,
-                'client' => $client,
-                'message' => 'Client created successfully'
-            ], 201);
+            // Check if request expects JSON (API call) or regular form submission
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'client' => $client,
+                    'message' => 'Client created successfully'
+                ], 201);
+            }
+
+            // Regular form submission - redirect with success message
+            return redirect()
+                ->route('clients.index')
+                ->with('success', 'تم إنشاء العميل بنجاح');
 
         } catch (\Exception $e) {
             Log::error('Failed to create client', [
                 'error' => $e->getMessage()
             ]);
 
-            return response()->json([
-                'success' => false,
-                'message' => 'Failed to create client',
-                'error' => $e->getMessage()
-            ], 500);
+            // Check if request expects JSON (API call) or regular form submission
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Failed to create client',
+                    'error' => $e->getMessage()
+                ], 500);
+            }
+
+            // Regular form submission - redirect back with error message
+            return redirect()
+                ->back()
+                ->withInput()
+                ->with('error', 'فشل في إنشاء العميل: ' . $e->getMessage());
         }
     }
 

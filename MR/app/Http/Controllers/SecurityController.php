@@ -2,14 +2,15 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Alert;
 use App\Models\ApiToken;
+use App\Models\Operation;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 
 class SecurityController extends Controller
@@ -23,19 +24,45 @@ class SecurityController extends Controller
     }
 
     /**
+     * Provide lightweight status flags for the frontend dashboard.
+     */
+    public function systemStatus(): JsonResponse
+    {
+        try {
+            return response()->json([
+                'password_policy' => $this->checkPasswordPolicy()['status'],
+                'api_security' => $this->checkApiSecurity()['status'],
+                'session_security' => $this->checkSessionSecurity()['status'],
+                'encryption_status' => $this->checkEncryptionStatus()['status'],
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Failed to load system security status', [
+                'user_id' => Auth::id(),
+                'error' => $e->getMessage(),
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to load security status',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
      * Get security settings and status.
      */
     public function settings(): JsonResponse
     {
         try {
             $user = Auth::user();
-            
+
             $settings = [
                 'user' => [
                     'id' => $user->id,
                     'name' => $user->name,
                     'email' => $user->email,
-                    'two_factor_enabled' => false, // TODO: Implement 2FA
+                    'two_factor_enabled' => false, 
                     'last_login' => $user->last_login_at,
                     'api_tokens_count' => $user->apiTokens()->count(),
                 ],
@@ -148,25 +175,12 @@ class SecurityController extends Controller
     /**
      * Get security audit log.
      */
-    public function auditLog(Request $request): JsonResponse
+    public function auditLog(): JsonResponse
     {
         try {
-            $validated = $request->validate([
-                'start_date' => 'nullable|date',
-                'end_date' => 'nullable|date|after_or_equal:start_date',
-                'event_type' => 'nullable|string|in:login,logout,password_change,token_created,token_revoked,api_access,security_alert',
-                'per_page' => 'nullable|integer|min:1|max:100',
-            ]);
-
-            $query = $this->getAuditLogQuery($validated);
-
-            $auditLog = $query->latest()->paginate($validated['per_page'] ?? 50);
-
             return response()->json([
-                'success' => true,
-                'audit_log' => $auditLog
+                'logs' => $this->buildAuditLogEntries(),
             ]);
-
         } catch (\Exception $e) {
             Log::error('Failed to get audit log', [
                 'user_id' => Auth::id(),
@@ -188,7 +202,7 @@ class SecurityController extends Controller
     {
         try {
             $user = Auth::user();
-            
+
             $stats = [
                 'user_security' => [
                     'api_tokens_count' => $user->apiTokens()->count(),
@@ -329,16 +343,6 @@ class SecurityController extends Controller
     }
 
     /**
-     * Get audit log query.
-     */
-    private function getAuditLogQuery(array $filters)
-    {
-        // This would typically query a security audit log table
-        // For now, we'll return a mock query
-        return collect();
-    }
-
-    /**
      * Get security event count.
      */
     private function getSecurityEventCount(string $eventType, $date): int
@@ -409,12 +413,14 @@ class SecurityController extends Controller
      */
     private function generateSecureToken(int $length, string $type): string
     {
-        return match($type) {
-            'alphanumeric' => Str::random($length),
-            'numeric' => Str::random(1, $length, '0123456789'),
-            'hex' => bin2hex(random_bytes($length / 2)),
-            'uuid' => Str::uuid(),
-            default => Str::random($length),
+        return match ($type) {
+            'numeric' => $this->randomCharacters($length, '0123456789'),
+            'hex' => substr(bin2hex(random_bytes((int) ceil($length / 2))), 0, $length),
+            'uuid' => (string) Str::uuid(),
+            default => $this->randomCharacters(
+                $length,
+                '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'
+            ),
         };
     }
 
@@ -515,5 +521,75 @@ class SecurityController extends Controller
                 'secure_headers' => true,
             ],
         ];
+    }
+
+    private function buildAuditLogEntries(): array
+    {
+        $user = Auth::user();
+
+        $tokenLogs = $user
+            ? $user->apiTokens()
+                ->latest('created_at')
+                ->take(5)
+                ->get()
+                ->map(function (ApiToken $token) use ($user) {
+                    return [
+                        'id' => 'token-' . $token->id,
+                        'event_type' => 'token_created',
+                        'type' => 'info',
+                        'user_name' => $user->name,
+                        'ip_address' => request()->ip(),
+                        'created_at' => optional($token->created_at)->toDateTimeString(),
+                    ];
+                })
+            : collect();
+
+        $alertLogs = Alert::latest('triggered_at')
+            ->take(5)
+            ->get()
+            ->map(function (Alert $alert) {
+                return [
+                    'id' => 'alert-' . $alert->id,
+                    'event_type' => 'security_alert',
+                    'type' => $alert->severity === 'critical' ? 'error' : 'warning',
+                    'user_name' => 'System Monitor',
+                    'ip_address' => request()->ip(),
+                    'created_at' => optional($alert->triggered_at ?? $alert->created_at)->toDateTimeString(),
+                ];
+            });
+
+        $operationLogs = Operation::latest('updated_at')
+            ->take(5)
+            ->get()
+            ->map(function (Operation $operation) {
+                return [
+                    'id' => 'operation-' . $operation->id,
+                    'event_type' => 'api_access',
+                    'type' => 'info',
+                    'user_name' => optional($operation->client)->name ?? 'Unknown Client',
+                    'ip_address' => request()->ip(),
+                    'created_at' => optional($operation->updated_at)->toDateTimeString(),
+                ];
+            });
+
+        return $tokenLogs
+            ->merge($alertLogs)
+            ->merge($operationLogs)
+            ->sortByDesc('created_at')
+            ->take(10)
+            ->values()
+            ->toArray();
+    }
+
+    private function randomCharacters(int $length, string $characters): string
+    {
+        $charactersLength = strlen($characters) - 1;
+        $result = '';
+
+        for ($i = 0; $i < $length; $i++) {
+            $result .= $characters[random_int(0, $charactersLength)];
+        }
+
+        return $result;
     }
 }

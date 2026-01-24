@@ -237,9 +237,8 @@
                 async loadClients() {
                     this.loading = true;
                     try {
-                        const response = await fetch('/api/clients');
-                        const data = await response.json();
-                        this.clients = data.clients.map(client => ({
+                        // Use clients data passed from controller instead of API call
+                        this.clients = @json($clients).map(client => ({
                             ...client,
                             status_text: this.getStatusText(client.status)
                         }));
@@ -254,10 +253,11 @@
                 
                 async loadStatistics() {
                     try {
-                        const response = await fetch('/api/clients/statistics');
-                        this.statistics = await response.json();
+                        // Use statistics data passed from controller instead of API call
+                        this.statistics = @json($statistics);
                     } catch (error) {
                         console.error('Failed to load statistics:', error);
+                        this.$root.showNotification('فشل تحميل الإحصائيات', 'error');
                     }
                 },
                 

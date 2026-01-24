@@ -47,7 +47,6 @@
                                         required
                                         placeholder="أدخل اسم التوكن"
                                         model="form.name"
-                                        :error="errors.name"
                                         icon="M15 7h2a5 5 0 013.9 8.1L15 17M7 7h2a5 5 0 00-3.9 8.1L9 17"
                                     />
                                 </div>
@@ -488,12 +487,16 @@
                 },
                 
                 generateToken() {
-                    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-                    let token = '';
-                    for (let i = 0; i < 32; i++) {
-                        token += chars.charAt(Math.floor(Math.random() * chars.length));
-                    }
+                    // Generate a professional API token format: prefix_random_suffix
+                    const prefix = 'tok';
+                    const randomPart = Array.from(crypto.getRandomValues(new Uint8Array(16)), byte => byte.toString(16).padStart(2, '0')).join('');
+                    const timestamp = Date.now().toString(36);
+                    const token = `${prefix}_${randomPart}_${timestamp}`;
+                    
                     this.form.token = token;
+                    
+                    // Show success feedback
+                    this.$root.showNotification('تم إنشاء التوكن بنجاح', 'success');
                 },
                 
                 async submitForm() {

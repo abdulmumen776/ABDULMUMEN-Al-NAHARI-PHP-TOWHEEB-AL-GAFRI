@@ -337,9 +337,8 @@
                 async loadOperations() {
                     this.loading = true;
                     try {
-                        const response = await fetch('/api/operations');
-                        const data = await response.json();
-                        this.operations = data.operations.map(operation => ({
+                        // Use operations data passed from controller instead of API call
+                        this.operations = @json($operations).map(operation => ({
                             ...operation,
                             status_text: this.getStatusText(operation.status),
                             type_text: this.getTypeText(operation.type)
@@ -356,20 +355,21 @@
                 
                 async loadClients() {
                     try {
-                        const response = await fetch('/api/clients');
-                        const data = await response.json();
-                        this.clients = data.clients;
+                        // Use clients data passed from controller instead of API call
+                        this.clients = @json($clients);
                     } catch (error) {
                         console.error('Failed to load clients:', error);
+                        this.$root.showNotification('فشل تحميل العملاء', 'error');
                     }
                 },
                 
                 async loadStatistics() {
                     try {
-                        const response = await fetch('/api/operations/statistics');
-                        this.statistics = await response.json();
+                        // Use statistics data passed from controller instead of API call
+                        this.statistics = @json($statistics);
                     } catch (error) {
                         console.error('Failed to load statistics:', error);
+                        this.$root.showNotification('فشل تحميل الإحصائيات', 'error');
                     }
                 },
                 

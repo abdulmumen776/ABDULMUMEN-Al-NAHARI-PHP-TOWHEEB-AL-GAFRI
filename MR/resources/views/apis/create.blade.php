@@ -47,7 +47,6 @@
                                         required
                                         placeholder="أدخل اسم الـ API"
                                         model="form.name"
-                                        :error="errors.name"
                                         icon="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"
                                     />
                                 </div>
@@ -112,7 +111,6 @@
                                         required
                                         placeholder="https://api.example.com"
                                         model="form.base_url"
-                                        :error="errors.base_url"
                                         icon="M21 12a9 9 0 011-9 9 9 9 0 0119 9z"
                                     />
                                 </div>
@@ -128,7 +126,6 @@
                                         required
                                         placeholder="/api/v1/users"
                                         model="form.endpoint"
-                                        :error="errors.endpoint"
                                         icon="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
                                     />
                                 </div>
