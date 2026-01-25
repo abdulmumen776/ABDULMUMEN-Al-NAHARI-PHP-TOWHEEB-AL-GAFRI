@@ -476,6 +476,11 @@
             color: var(--text-quaternary);
         }
 
+        .ltr-input {
+            direction: ltr !important;
+            text-align: left !important;
+        }
+
         /* Professional Badges */
         .badge {
             display: inline-flex;
