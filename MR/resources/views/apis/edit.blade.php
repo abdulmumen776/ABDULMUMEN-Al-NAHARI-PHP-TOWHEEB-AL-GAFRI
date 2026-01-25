@@ -41,7 +41,7 @@
                     <!-- Left Column -->
                     <div class="space-y-6">
                         <!-- Basic Information -->
-                        <div class="bg-gray-50 dark:bg-gray-800 rounded-xl p-6">
+                        <div class="bg-white rounded-xl shadow-lg p-6" :class="darkMode ? 'bg-gray-800' : ''">
                             <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-4">معلومات أساسية</h3>
                             
                             <div class="space-y-4">
@@ -106,7 +106,7 @@
                         </div>
 
                         <!-- Endpoint Information -->
-                        <div class="bg-gray-50 dark:bg-gray-800 rounded-xl p-6">
+                        <div class="bg-white rounded-xl shadow-lg p-6" :class="darkMode ? 'bg-gray-800' : ''">
                             <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-4">معلومات النقطة النهائية</h3>
                             
                             <div class="space-y-4">
@@ -177,7 +177,7 @@
                     <!-- Right Column -->
                     <div class="space-y-6">
                         <!-- Authentication -->
-                        <div class="bg-gray-50 dark:bg-gray-800 rounded-xl p-6">
+                        <div class="bg-white rounded-xl shadow-lg p-6" :class="darkMode ? 'bg-gray-800' : ''">
                             <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-4">المصادقة والأمان</h3>
                             
                             <div class="space-y-4">
@@ -269,7 +269,7 @@
                         </div>
 
                         <!-- Monitoring Settings -->
-                        <div class="bg-gray-50 dark:bg-gray-800 rounded-xl p-6">
+                        <div class="bg-white rounded-xl shadow-lg p-6" :class="darkMode ? 'bg-gray-800' : ''">
                             <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-4">إعدادات المراقبة</h3>
                             
                             <div class="space-y-4">
@@ -332,7 +332,7 @@
                         </div>
 
                         <!-- Headers -->
-                        <div class="bg-gray-50 dark:bg-gray-800 rounded-xl p-6">
+                        <div class="bg-white rounded-xl shadow-lg p-6" :class="darkMode ? 'bg-gray-800' : ''">
                             <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-4">الرؤوس الافتراضية</h3>
                             
                             <div class="space-y-4">
@@ -349,7 +349,7 @@
                         </div>
 
                         <!-- Description -->
-                        <div class="bg-gray-50 dark:bg-gray-800 rounded-xl p-6">
+                        <div class="bg-white rounded-xl shadow-lg p-6" :class="darkMode ? 'bg-gray-800' : ''">
                             <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-4">الوصف والملاحظات</h3>
                             
                             <div class="space-y-4">
@@ -376,7 +376,7 @@
                         </div>
 
                         <!-- Settings -->
-                        <div class="bg-gray-50 dark:bg-gray-800 rounded-xl p-6">
+                        <div class="bg-white rounded-xl shadow-lg p-6" :class="darkMode ? 'bg-gray-800' : ''">
                             <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-4">الإعدادات المتقدمة</h3>
                             
                             <div class="space-y-4">
@@ -496,3 +496,8 @@
         }
     </script>
 @endsection
+
+
+
+
+
