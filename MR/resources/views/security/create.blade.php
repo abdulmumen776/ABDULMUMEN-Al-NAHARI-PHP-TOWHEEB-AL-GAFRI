@@ -32,7 +32,7 @@
                     <!-- Left Column -->
                     <div class="space-y-6">
                         <!-- Basic Information -->
-                        <div class="bg-gray-50 dark:bg-gray-800 rounded-xl p-6">
+                        <div class="bg-white rounded-xl shadow-lg p-6" :class="darkMode ? 'bg-gray-800' : ''">
                             <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-4">معلومات أساسية</h3>
                             
                             <div class="space-y-4">
@@ -46,7 +46,6 @@
                                         id="name" 
                                         required
                                         placeholder="أدخل اسم الإعداد"
-                                        model="form.name"
                                         :error="errors.name"
                                         icon="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2h12zM4 10h14M4 6h14"
                                     />
@@ -113,7 +112,7 @@
                         </div>
 
                         <!-- Configuration -->
-                        <div class="bg-gray-50 dark:bg-gray-800 rounded-xl p-6">
+                        <div class="bg-white rounded-xl shadow-lg p-6" :class="darkMode ? 'bg-gray-800' : ''">
                             <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-4">الإعدادات والتكوين</h3>
                             
                             <div class="space-y-4">
@@ -218,7 +217,7 @@
                     <!-- Right Column -->
                     <div class="space-y-6">
                         <!-- Monitoring Settings -->
-                        <div class="bg-gray-50 dark:bg-gray-800 rounded-xl p-6">
+                        <div class="bg-white rounded-xl shadow-lg p-6" :class="darkMode ? 'bg-gray-800' : ''">
                             <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-4">إعدادات المراقبة</h3>
                             
                             <div class="space-y-4">
@@ -301,7 +300,7 @@
                         </div>
 
                         <!-- Description -->
-                        <div class="bg-gray-50 dark:bg-gray-800 rounded-xl p-6">
+                        <div class="bg-white rounded-xl shadow-lg p-6" :class="darkMode ? 'bg-gray-800' : ''">
                             <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-4">الوصف والملاحظات</h3>
                             
                             <div class="space-y-4">
@@ -328,7 +327,7 @@
                         </div>
 
                         <!-- IP Configuration -->
-                        <div class="bg-gray-50 dark:bg-gray-800 rounded-xl p-6">
+                        <div class="bg-white rounded-xl shadow-lg p-6" :class="darkMode ? 'bg-gray-800' : ''">
                             <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-4">إعدادات IP</h3>
                             
                             <div class="space-y-4">
@@ -382,7 +381,7 @@
                         </div>
 
                         <!-- Advanced Settings -->
-                        <div class="bg-gray-50 dark:bg-gray-800 rounded-xl p-6">
+                        <div class="bg-white rounded-xl shadow-lg p-6" :class="darkMode ? 'bg-gray-800' : ''">
                             <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-4">الإعدادات المتقدمة</h3>
                             
                             <div class="space-y-4">
@@ -517,3 +516,4 @@
         }
     </script>
 @endsection
+

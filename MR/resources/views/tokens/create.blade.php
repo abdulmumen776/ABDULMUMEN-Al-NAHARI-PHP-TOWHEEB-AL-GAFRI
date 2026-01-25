@@ -32,7 +32,7 @@
                     <!-- Left Column -->
                     <div class="space-y-6">
                         <!-- Basic Information -->
-                        <div class="bg-gray-50 dark:bg-gray-800 rounded-xl p-6">
+                        <div class="bg-white rounded-xl shadow-lg p-6" :class="darkMode ? 'bg-gray-800' : ''">
                             <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-4">معلومات أساسية</h3>
                             
                             <div class="space-y-4">
@@ -46,7 +46,6 @@
                                         id="name" 
                                         required
                                         placeholder="أدخل اسم التوكن"
-                                        model="form.name"
                                         icon="M15 7h2a5 5 0 013.9 8.1L15 17M7 7h2a5 5 0 00-3.9 8.1L9 17"
                                     />
                                 </div>
@@ -56,7 +55,6 @@
                                         العميل <span class="text-red-500">*</span>
                                     </label>
                                     <select name="client_id" id="client_id" required
-                                            x-model="form.client_id"
                                             class="form-input">
                                         <option value="">اختر العميل</option>
                                         @foreach($clients as $client)
@@ -70,7 +68,6 @@
                                         الحالة <span class="text-red-500">*</span>
                                     </label>
                                     <select name="status" id="status" required
-                                            x-model="form.status"
                                             class="form-input">
                                         <option value="active">نشط</option>
                                         <option value="inactive">غير نشط</option>
@@ -84,7 +81,6 @@
                                         نوع التوكن
                                     </label>
                                     <select name="type" id="type"
-                                            x-model="form.type"
                                             class="form-input">
                                         <option value="api">API</option>
                                         <option value="web">Web</option>
@@ -103,7 +99,6 @@
                                         name="purpose" 
                                         id="purpose"
                                         placeholder="المراقبة، التكامل، الوصول إلى البيانات"
-                                        model="form.purpose"
                                         icon="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
                                     />
                                 </div>
@@ -111,7 +106,7 @@
                         </div>
 
                         <!-- Token Settings -->
-                        <div class="bg-gray-50 dark:bg-gray-800 rounded-xl p-6">
+                        <div class="bg-white rounded-xl shadow-lg p-6" >
                             <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-4">إعدادات التوكن</h3>
                             
                             <div class="space-y-4">
@@ -130,12 +125,11 @@
                                                 type="text" 
                                                 name="token" 
                                                 id="token"
-                                                x-model="form.token"
                                                 class="form-input pr-10"
                                                 placeholder="سيتم إنشاء التوكن تلقائياً"
                                             />
                                         </div>
-                                        <button type="button" @click="generateToken()" class="btn btn-outline">
+                                        <button type="button" class="btn btn-outline">
                                             إنشاء تلقائي
                                         </button>
                                     </div>
@@ -149,7 +143,6 @@
                                         type="datetime-local" 
                                         name="expires_at" 
                                         id="expires_at"
-                                        model="form.expires_at"
                                         icon="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2h12zM4 10h14M4 6h14"
                                     />
                                 </div>
@@ -163,8 +156,7 @@
                                         name="usage_limit" 
                                         id="usage_limit"
                                         placeholder="1000"
-                                        model="form.usage_limit"
-                                        icon="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002 2zm0 0V9a2 2 0 012-2h2a2 2 0 012-2h2a2 2 0 012-2h2a2 2 0 012-2z"
+                                        icon="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002 2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2"
                                     />
                                 </div>
 
@@ -177,7 +169,6 @@
                                         name="rate_limit" 
                                         id="rate_limit"
                                         placeholder="100"
-                                        model="form.rate_limit"
                                         icon="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
                                     />
                                 </div>
@@ -187,12 +178,13 @@
                                         التحديث التلقائي
                                     </label>
                                     <label class="relative inline-flex items-center cursor-pointer">
-                                        <input type="checkbox" x-model="form.auto_refresh" class="sr-only peer">
+                                        <input type="hidden" name="auto_refresh" value="0">
+                                        <input type="checkbox" name="auto_refresh" value="1" class="sr-only peer">
                                         <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-500 rounded-full peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
                                     </label>
                                 </div>
 
-                                <div x-show="form.auto_refresh">
+                                <div>
                                     <label for="refresh_days" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                                         فترة التحديث (بالأيام)
                                     </label>
@@ -201,7 +193,6 @@
                                         name="refresh_days" 
                                         id="refresh_days"
                                         placeholder="30"
-                                        model="form.refresh_days"
                                         icon="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2h12zM4 10h14M4 6h14"
                                     />
                                 </div>
@@ -212,7 +203,7 @@
                     <!-- Right Column -->
                     <div class="space-y-6">
                         <!-- Permissions -->
-                        <div class="bg-gray-50 dark:bg-gray-800 rounded-xl p-6">
+                        <div class="bg-white rounded-xl shadow-lg p-6" >
                             <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-4">الصلاحيات</h3>
                             
                             <div class="space-y-4">
@@ -222,29 +213,29 @@
                                     </label>
                                     <div class="space-y-2">
                                         <label class="flex items-center">
-                                            <input type="checkbox" x-model="form.permissions" value="read" class="ml-2 rounded text-gray-600 focus:ring-blue-500">
-                                                <span class="text-sm text-gray-700 dark:text-gray-300">قراءة البيانات</span>
-                                            </label>
+                                            <input type="checkbox" name="permissions[]" value="read" {{ in_array('read', old('permissions', [])) ? 'checked' : '' }} class="ml-2 rounded text-gray-600 focus:ring-blue-500">
+                                            <span class="text-sm text-gray-700 dark:text-gray-300">قراءة البيانات</span>
+                                        </label>
                                         <label class="flex items-center">
-                                            <input type="checkbox" x-model="form.permissions" value="write" class="ml-2 rounded text-gray-600 focus:ring-blue-500">
-                                                <span class="text-sm text-gray-700 dark:text-gray-300">كتابة البيانات</span>
-                                            </label>
+                                            <input type="checkbox" name="permissions[]" value="write" {{ in_array('write', old('permissions', [])) ? 'checked' : '' }} class="ml-2 rounded text-gray-600 focus:ring-blue-500">
+                                            <span class="text-sm text-gray-700 dark:text-gray-300">كتابة البيانات</span>
+                                        </label>
                                         <label class="flex items-center">
-                                            <input type="checkbox" x-model="form.permissions" value="delete" class="ml-2 rounded text-gray-600 focus:ring-blue-500">
-                                                <span class="text-sm text-gray-700 dark:text-gray-300">حذف البيانات</span>
-                                            </label>
+                                            <input type="checkbox" name="permissions[]" value="delete" {{ in_array('delete', old('permissions', [])) ? 'checked' : '' }} class="ml-2 rounded text-gray-600 focus:ring-blue-500">
+                                            <span class="text-sm text-gray-700 dark:text-gray-300">حذف البيانات</span>
+                                        </label>
                                         <label class="flex items-center">
-                                            <input type="checkbox" x-model="form.permissions" value="admin" class="ml-2 rounded text-gray-600 focus:ring-blue-500">
-                                                <span class="text-sm text-gray-700 dark:text-gray-300">صلاحيات المدير</span>
-                                            </label>
+                                            <input type="checkbox" name="permissions[]" value="admin" {{ in_array('admin', old('permissions', [])) ? 'checked' : '' }} class="ml-2 rounded text-gray-600 focus:ring-blue-500">
+                                            <span class="text-sm text-gray-700 dark:text-gray-300">صلاحيات المدير</span>
+                                        </label>
                                         <label class="flex items-center">
-                                            <input type="checkbox" x-model="form.permissions" value="monitor" class="ml-2 rounded text-gray-600 focus:ring-blue-500">
-                                                <span class="text-sm text-gray-700 dark:text-gray-300">المراقبة</span>
-                                            </label>
+                                            <input type="checkbox" name="permissions[]" value="monitor" {{ in_array('monitor', old('permissions', [])) ? 'checked' : '' }} class="ml-2 rounded text-gray-600 focus:ring-blue-500">
+                                            <span class="text-sm text-gray-700 dark:text-gray-300">المراقبة</span>
+                                        </label>
                                         <label class="flex items-center">
-                                            <input type="checkbox" x-model="form.permissions" value="analytics" class="ml-2 rounded text-gray-600 focus:ring-blue-500">
-                                                <span class="text-sm text-gray-700 dark:text-gray-300">التحليلات</span>
-                                            </label>
+                                            <input type="checkbox" name="permissions[]" value="analytics" {{ in_array('analytics', old('permissions', [])) ? 'checked' : '' }} class="ml-2 rounded text-gray-600 focus:ring-blue-500">
+                                            <span class="text-sm text-gray-700 dark:text-gray-300">التحليلات</span>
+                                        </label>
                                     </div>
                                 </div>
 
@@ -253,9 +244,8 @@
                                         النقاط النهائية المسموح بها
                                     </label>
                                     <textarea name="allowed_endpoints" id="allowed_endpoints" rows="3"
-                                              x-model="form.allowed_endpoints"
                                               placeholder="/api/v1/*, /api/v2/users/*"
-                                              class="form-input resize-none font-mono text-sm"></textarea>
+                                              class="form-input resize-none font-mono text-sm">{{ old('allowed_endpoints') }}</textarea>
                                 </div>
 
                                 <div>
@@ -263,15 +253,14 @@
                                         النقاط النهائية المقيدة
                                     </label>
                                     <textarea name="restricted_endpoints" id="restricted_endpoints" rows="3"
-                                              x-model="form.restricted_endpoints"
                                               placeholder="/api/v1/admin/*, /api/v1/delete/*"
-                                              class="form-input resize-none font-mono text-sm"></textarea>
+                                              class="form-input resize-none font-mono text-sm">{{ old('restricted_endpoints') }}</textarea>
                                 </div>
                             </div>
                         </div>
 
                         <!-- IP Restrictions -->
-                        <div class="bg-gray-50 dark:bg-gray-800 rounded-xl p-6">
+                        <div class="bg-white rounded-xl shadow-lg p-6" >
                             <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-4">قيود IP</h3>
                             
                             <div class="space-y-4">
@@ -280,7 +269,6 @@
                                         تقيود IP
                                     </label>
                                     <select name="ip_restriction" id="ip_restriction"
-                                            x-model="form.ip_restriction"
                                             class="form-input">
                                         <option value="none">بدون قيود</option>
                                         <option value="whitelist">القائمة البيضاء</option>
@@ -288,12 +276,12 @@
                                     </select>
                                 </div>
 
+                                <div>
                                 <div x-show="form.ip_restriction !== 'none'">
                                     <label for="allowed_ips" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                                         عناوين IP المسموح بها/المحظورة
                                     </label>
                                     <textarea name="allowed_ips" id="allowed_ips" rows="3"
-                                              x-model="form.allowed_ips"
                                               placeholder="192.168.1.0/24, 10.0.0.0/8"
                                               class="form-input resize-none font-mono text-sm"></textarea>
                                 </div>
@@ -303,7 +291,6 @@
                                         القيود الجغرافية
                                     </label>
                                     <select name="geo_restriction" id="geo_restriction"
-                                            x-model="form.geo_restriction"
                                             class="form-input">
                                         <option value="none">بدون قيود</option>
                                         <option value="whitelist">القائمة البيضاء</option>
@@ -320,15 +307,14 @@
                                         name="allowed_countries" 
                                         id="allowed_countries"
                                         placeholder="SA, AE, US"
-                                        model="form.allowed_countries"
-                                        icon="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 3h-1A2.5 2.5 0 007 5.5v1.435M8 3.935V3.5A2.5 2.5 0 0010.5 1h-1A2.5 2.5 0 007 3.5v.435"
+                                        icon="M3 8a3 3 0 013 3h1a3 3 0 013 3v1a3 3 0 01-3 3H6a3 3 0 01-3-3V6a3 3 0 013-3h1"
                                     />
                                 </div>
                             </div>
                         </div>
 
                         <!-- Description -->
-                        <div class="bg-gray-50 dark:bg-gray-800 rounded-xl p-6">
+                        <div class="bg-white rounded-xl shadow-lg p-6" :class="darkMode ? 'bg-gray-800' : ''">
                             <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-4">الوصف والملاحظات</h3>
                             
                             <div class="space-y-4">
@@ -337,8 +323,7 @@
                                         وصف التوكن
                                     </label>
                                     <textarea name="description" id="description" rows="3"
-                                              x-model="form.description"
-                                              placeholder="أدخل وصفاً مفصلاً للتوكن"
+                                              placeholder="اترك فارغاً للإنشاء التلقائي"
                                               class="form-input resize-none"></textarea>
                                 </div>
 
@@ -347,8 +332,8 @@
                                         ملاحظات إضافية
                                     </label>
                                     <textarea name="notes" id="notes" rows="3"
-                                              x-model="form.notes"
                                               placeholder="أدخل أي ملاحظات إضافية"
+                                              value="{{ old('notes') }}"
                                               class="form-input resize-none"></textarea>
                                 </div>
 
@@ -361,7 +346,6 @@
                                         name="tags" 
                                         id="tags"
                                         placeholder="مهم, إنتاجي, تكامل"
-                                        model="form.tags"
                                         icon="M7 7h.01M7 3h.01"
                                     />
                                 </div>
@@ -369,7 +353,7 @@
                         </div>
 
                         <!-- Notification Settings -->
-                        <div class="bg-gray-50 dark:bg-gray-800 rounded-xl p-6">
+                        <div class="bg-white rounded-xl shadow-lg p-6" :class="darkMode ? 'bg-gray-800' : ''">
                             <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-4">إعدادات الإشعارات</h3>
                             
                             <div class="space-y-4">
@@ -382,7 +366,6 @@
                                         name="notification_email" 
                                         id="notification_email"
                                         placeholder="admin@example.com"
-                                        model="form.notification_email"
                                         icon="M3 8a3 3 0 013 3h1a3 3 0 013 3v1a3 3 0 01-3 3H6a3 3 0 01-3-3V6a3 3 0 013-3h1"
                                     />
                                 </div>
@@ -396,7 +379,6 @@
                                         name="alert_threshold" 
                                         id="alert_threshold"
                                         placeholder="80"
-                                        model="form.alert_threshold"
                                         icon="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
                                     />
                                 </div>
@@ -410,7 +392,6 @@
                                         name="expiry_notification" 
                                         id="expiry_notification"
                                         placeholder="7"
-                                        model="form.expiry_notification"
                                         icon="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
                                     />
                                 </div>
@@ -424,7 +405,6 @@
                                         name="webhook_url" 
                                         id="webhook_url"
                                         placeholder="https://example.com/webhook"
-                                        model="form.webhook_url"
                                         icon="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"
                                     />
                                 </div>
@@ -683,3 +663,4 @@
         }
     </script>
 @endsection
+

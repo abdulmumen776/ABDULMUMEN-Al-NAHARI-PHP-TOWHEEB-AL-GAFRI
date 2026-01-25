@@ -16,7 +16,76 @@ class ApiController extends Controller
      */
     public function index()
     {
-        return view('apis.index');
+        // Get all APIs with their client relationship
+        $apis = \App\Models\Api::with('client', 'performanceLogs')
+            ->latest()
+            ->get()
+            ->map(function($api) {
+                // Calculate performance metrics for this API
+                $logs = $api->performanceLogs;
+                $avgResponseTime = $logs->avg('response_time_ms') ?? 0;
+                $successRate = 0;
+                
+                if ($logs->count() > 0) {
+                    $successfulRequests = $logs->where('status_code', '<', 400)->count();
+                    $successRate = round(($successfulRequests / $logs->count()) * 100, 1);
+                }
+                
+                return [
+                    'id' => $api->id,
+                    'name' => $api->name,
+                    'base_url' => $api->base_url,
+                    'endpoint' => $api->endpoint,
+                    'method' => $api->method,
+                    'status' => $api->status,
+                    'avg_response_time' => round($avgResponseTime, 2),
+                    'success_rate' => $successRate,
+                    'created_at' => $api->created_at->format('Y-m-d H:i:s'),
+                    'updated_at' => $api->updated_at->format('Y-m-d H:i:s'),
+                    'client' => $api->client ? [
+                        'id' => $api->client->id,
+                        'name' => $api->client->name
+                    ] : null
+                ];
+            });
+
+        // Calculate overall statistics
+        $totalApis = $apis->count();
+        $activeApis = $apis->where('status', 'active')->count();
+        $monitoredApis = $apis->where('status', 'monitored')->count();
+        $errorApis = $apis->where('status', 'error')->count();
+        
+        // Calculate overall error rate
+        $errorRate = $totalApis > 0 ? round(($errorApis / $totalApis) * 100, 1) : 0;
+        
+        // Calculate overall average response time and success rate
+        $allLogs = \App\Models\ApiPerformanceLog::all();
+        $overallAvgResponseTime = $allLogs->avg('response_time_ms') ?? 0;
+        $overallSuccessRate = 0;
+        
+        if ($allLogs->count() > 0) {
+            $successfulRequests = $allLogs->where('status_code', '<', 400)->count();
+            $overallSuccessRate = round(($successfulRequests / $allLogs->count()) * 100, 1);
+        }
+        
+        // Get all clients for the filter dropdown
+        $clients = \App\Models\Client::select('id', 'name')->get();
+
+        // Pass data to the view
+        return view('apis.index', [
+            'initialData' => [
+                'apis' => $apis,
+                'clients' => $clients,
+                'statistics' => [
+                    'total_apis' => $totalApis,
+                    'active_apis' => $activeApis,
+                    'monitored_apis' => $monitoredApis,
+                    'error_rate' => $errorRate . '%',
+                    'avg_response_time' => round($overallAvgResponseTime, 2),
+                    'success_rate' => $overallSuccessRate
+                ]
+            ]
+        ]);
     }
 
     /**
@@ -31,19 +100,25 @@ class ApiController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request): JsonResponse
+    public function store(Request $request)
     {
         try {
             $validated = $request->validate([
                 'client_id' => 'nullable|exists:clients,id',
                 'name' => 'required|string|max:255',
                 'base_url' => 'required|url',
+                'endpoint' => 'required|string|max:255',
+                'method' => 'required|in:GET,POST,PUT,PATCH,DELETE,OPTIONS',
                 'owner' => 'nullable|string|max:255',
                 'description' => 'nullable|string',
                 'status' => 'required|in:monitored,inactive,error',
             ]);
 
+            // Create the API with the validated data
             $api = Api::create($validated);
+
+            // Load the client relationship
+            $api->load('client');
 
             Log::info('API created successfully', [
                 'api_id' => $api->id,
@@ -51,36 +126,84 @@ class ApiController extends Controller
                 'client_id' => $api->client_id
             ]);
 
-            return response()->json([
-                'success' => true,
-                'api' => $api,
-                'message' => 'API created successfully'
-            ], 201);
+            if ($request->expectsJson() || $request->ajax()) {
+                return response()->json([
+                    'success' => true,
+                    'api' => $api,
+                    'message' => 'API created successfully',
+                    'redirect' => route('apis.success', $api)
+                ], 201);
+            }
+
+            return redirect()
+                ->route('apis.success', $api)
+                ->with('success', 'تم إنشاء الـ API بنجاح');
 
         } catch (\Exception $e) {
             Log::error('Failed to create API', [
                 'error' => $e->getMessage()
             ]);
 
-            return response()->json([
-                'success' => false,
-                'message' => 'Failed to create API',
-                'error' => $e->getMessage()
-            ], 500);
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Failed to create API',
+                    'error' => $e->getMessage()
+                ], 500);
+            }
+
+            return back()->withErrors(['api' => 'فشل إنشاء الـ API'])->withInput();
         }
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(Api $api): JsonResponse
+    /**
+     * Display the success page for a newly created API.
+     */
+    public function success(Api $api)
     {
         try {
-            $api->load(['client', 'performanceLogs']);
+            // Load relationships
+            $api->load(['client', 'performance_logs']);
 
-            return response()->json([
-                'success' => true,
-                'api' => $api
+            return view('apis.success', [
+                'api' => $api,
+                'success' => session('success', 'تم إنشاء الـ API بنجاح')
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Failed to load API success page', [
+                'api_id' => $api->id,
+                'error' => $e->getMessage()
+            ]);
+
+            return redirect()->route('apis.index')
+                ->with('error', 'حدث خطأ أثناء تحميل صفحة النجاح');
+        }
+    }
+
+    /**
+     * Display the specified resource.
+     */
+    public function show(Api $api, Request $request)
+    {
+        try {
+            // Load relationships
+            $api->load(['client', 'performance_logs']);
+
+            // If it's an AJAX request, return JSON
+            if ($request->expectsJson() || $request->ajax()) {
+                return response()->json([
+                    'success' => true,
+                    'api' => $api
+                ]);
+            }
+
+            // For regular requests, return the view
+            return view('apis.show', [
+                'api' => $api,
+                'success' => session('success')
             ]);
 
         } catch (\Exception $e) {
@@ -89,11 +212,15 @@ class ApiController extends Controller
                 'error' => $e->getMessage()
             ]);
 
-            return response()->json([
-                'success' => false,
-                'message' => 'Failed to retrieve API',
-                'error' => $e->getMessage()
-            ], 500);
+            if ($request->expectsJson() || $request->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Failed to retrieve API',
+                    'error' => $e->getMessage()
+                ], 500);
+            }
+
+            return redirect()->back()->with('error', 'حدث خطأ أثناء تحميل بيانات الـ API');
         }
     }
 
@@ -103,13 +230,17 @@ class ApiController extends Controller
     public function edit(Api $api)
     {
         $clients = Client::all();
-        return view('apis.edit', compact('api', 'clients'));
+        
+        return view('apis.edit', [
+            'api' => $api,
+            'clients' => $clients
+        ]);
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Api $api): JsonResponse
+    public function update(Request $request, Api $api)
     {
         try {
             $validated = $request->validate([
@@ -128,11 +259,24 @@ class ApiController extends Controller
                 'api_name' => $api->name
             ]);
 
-            return response()->json([
-                'success' => true,
-                'api' => $api,
-                'message' => 'API updated successfully'
-            ]);
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'api' => $api,
+                    'message' => 'API updated successfully'
+                ]);
+            }
+
+            return redirect()
+                ->route('apis.edit', $api)
+                ->with('success', 'تم تحديث الـ API بنجاح')
+                ->with('updated_api', [
+                    'id' => $api->id,
+                    'name' => $api->name,
+                    'base_url' => $api->base_url,
+                    'status' => $api->status,
+                    'client_id' => $api->client_id,
+                ]);
 
         } catch (\Exception $e) {
             Log::error('Failed to update API', [
@@ -140,11 +284,15 @@ class ApiController extends Controller
                 'error' => $e->getMessage()
             ]);
 
-            return response()->json([
-                'success' => false,
-                'message' => 'Failed to update API',
-                'error' => $e->getMessage()
-            ], 500);
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Failed to update API',
+                    'error' => $e->getMessage()
+                ], 500);
+            }
+
+            return back()->withErrors(['api' => 'فشل تحديث الـ API'])->withInput();
         }
     }
 

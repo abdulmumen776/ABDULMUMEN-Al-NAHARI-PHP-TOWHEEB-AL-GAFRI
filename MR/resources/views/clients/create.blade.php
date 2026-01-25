@@ -82,7 +82,6 @@
                                         id="name" 
                                         required
                                         placeholder="أدخل اسم العميل"
-                                        model="form.name"
                                         error="{{ $errors->first('name') ?? '' }}"
                                         icon="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 100-14 7 7 0 0114 0z"
                                     />
@@ -97,7 +96,6 @@
                                         name="industry" 
                                         id="industry"
                                         placeholder="أدخل الصناعة"
-                                        model="form.industry"
                                         icon="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1"
                                     />
                                 </div>
@@ -138,7 +136,6 @@
                                         name="contact_email" 
                                         id="contact_email"
                                         placeholder="example@email.com"
-                                        model="form.contact_email"
                                         icon="M3 5a2 2 0 012-2h3.28a1 1 0 01.447-.894l9.425 9.425a1 1 0 01.894.447L10.828 15H16a2 2 0 002-2v-3.28a1 1 0 00-.447-.894L6.169 3.837A1 1 0 015.753 3.837z"
                                     />
                                 </div>
@@ -152,7 +149,7 @@
                                         name="contact_phone" 
                                         id="contact_phone"
                                         placeholder="+966 50 123 4567"
-                                        model="form.contact_phone"
+                                        x-model="form.contact_phone"
                                         icon="M3 5a2 2 0 012-2h3.28a1 1 0 01.447-.894l9.425 9.425a1 1 0 01.894.447L10.828 15H16a2 2 0 002-2v-3.28a1 1 0 00-.447-.894L6.169 3.837A1 1 0 015.753 3.837z"
                                     />
                                 </div>
@@ -180,7 +177,6 @@
                                         name="website" 
                                         id="website"
                                         placeholder="https://example.com"
-                                        model="form.website"
                                         icon="M21 12a9 9 0 011-9 9 9 0 0119 0z"
                                     />
                                 </div>
@@ -191,7 +187,7 @@
                                     </label>
                                     <textarea name="address" id="address" rows="3"
                                               x-model="form.address"
-                                              placeholder="أدخل العنوان الكامل"
+                                              placeholder="أدخل العنوان الكامل للعميل"
                                               class="form-input resize-none"></textarea>
                                 </div>
 
@@ -201,7 +197,7 @@
                                     </label>
                                     <textarea name="notes" id="notes" rows="3"
                                               x-model="form.notes"
-                                              placeholder="أدخل أي ملاحظات إضافية"
+                                              placeholder="أدخل أي ملاحظات إضافية عن العميل"
                                               class="form-input resize-none"></textarea>
                                 </div>
                             </div>
@@ -217,11 +213,11 @@
                                 <div class="bg-white bg-opacity-20 rounded-lg p-4">
                                     <div class="flex items-center mb-3">
                                         <div class="w-12 h-12 bg-white bg-opacity-30 rounded-full flex items-center justify-center">
-                                            <span class="text-xl font-bold" x-text="form.name.charAt(0).toUpperCase()"></span>
+                                            <span class="text-xl font-bold">ع</span>
                                         </div>
                                         <div>
-                                            <p class="font-semibold text-lg" x-text="form.name || 'اسم العميل'"></p>
-                                            <p class="text-blue-100" x-text="form.industry || 'لا يوجد صناعة'"></p>
+                                            <p class="font-semibold text-lg">اسم العميل</p>
+                                            <p class="text-blue-100">لا يوجد صناعة</p>
                                         </div>
                                     </div>
                                     <div class="flex items-center justify-between">
@@ -389,3 +385,4 @@
         }
     </script>
 @endsection
+

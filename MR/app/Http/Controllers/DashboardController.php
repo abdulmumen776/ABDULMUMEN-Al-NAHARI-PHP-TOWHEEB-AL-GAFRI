@@ -22,12 +22,302 @@ class DashboardController extends Controller
      */
     public function index()
     {
-        return view('dashboards.index');
+        // Get real statistics from the database with error handling
+        try {
+            $totalClients = \App\Models\Client::count();
+        } catch (\Exception $e) {
+            $totalClients = 0;
+        }
+        
+        try {
+            $activeOperations = \App\Models\Operation::where('status', 'active')->count();
+        } catch (\Exception $e) {
+            $activeOperations = 0;
+        }
+        
+        try {
+            $monitoredApis = \App\Models\Api::where('status', 'monitored')->count();
+        } catch (\Exception $e) {
+            $monitoredApis = 0;
+        }
+        
+        try {
+            $openAlerts = \App\Models\Alert::where('status', 'open')->count();
+        } catch (\Exception $e) {
+            $openAlerts = 0;
+        }
+        
+        // Get recent activities
+        $recentOperations = collect([]);
+        try {
+            $recentOperations = \App\Models\Operation::with('client', 'api')
+                ->latest()
+                ->take(10)
+                ->get()
+                ->map(function($operation) {
+                    return [
+                        'id' => $operation->id,
+                        'type' => $operation->type ?? 'N/A',
+                        'status' => $operation->status ?? 'unknown',
+                        'client_name' => $operation->client ? $operation->client->name : 'N/A',
+                        'api_name' => $operation->api ? $operation->api->name : 'N/A',
+                        'created_at' => $operation->created_at ? $operation->created_at->format('Y-m-d H:i:s') : 'N/A',
+                    ];
+                });
+        } catch (\Exception $e) {
+            // Keep empty collection if there's an error
+        }
+        
+        // Get system status
+        $systemStatus = [
+            'database' => $this->checkDatabaseStatus(),
+            'redis_cache' => $this->checkRedisStatus(),
+            'queue_worker' => $this->checkQueueWorkerStatus(),
+            'api_monitoring' => $monitoredApis > 0 ? 'active' : 'inactive',
+            'email_service' => $this->checkEmailServiceStatus(),
+        ];
+        
+        // Get performance data for charts
+        $performanceData = $this->getPerformanceData();
+        
+        return view('dashboard.index', compact(
+            'totalClients',
+            'activeOperations', 
+            'monitoredApis',
+            'openAlerts',
+            'recentOperations',
+            'systemStatus',
+            'performanceData'
+        ));
+    }
+    
+    /**
+     * Check database status
+     */
+    private function checkDatabaseStatus()
+    {
+        try {
+            \DB::select('SELECT 1');
+            return 'active';
+        } catch (\Exception $e) {
+            return 'error';
+        }
+    }
+    
+    /**
+     * Check Redis status
+     */
+    private function checkRedisStatus()
+    {
+        try {
+            // Check if Redis is configured
+            if (!config('redis.default.host')) {
+                return 'inactive';
+            }
+            
+            // Check if Redis extension is loaded
+            if (!extension_loaded('redis')) {
+                return 'inactive';
+            }
+            
+            // Try to connect to Redis
+            if (app()->bound('redis')) {
+                $redis = app('redis');
+                $redis->ping();
+                return 'active';
+            }
+            
+            return 'inactive';
+        } catch (\Exception $e) {
+            return 'error';
+        }
+    }
+    
+    /**
+     * Check queue worker status
+     */
+    private function checkQueueWorkerStatus()
+    {
+        // This is a simplified check - in production you might want to check supervisor or other queue monitoring
+        try {
+            $failedJobs = \DB::table('failed_jobs')->count();
+            return $failedJobs > 10 ? 'error' : 'active';
+        } catch (\Exception $e) {
+            return 'inactive';
+        }
+    }
+    
+    /**
+     * Check email service status
+     */
+    private function checkEmailServiceStatus()
+    {
+        try {
+            // Check if mail configuration is set
+            $config = config('mail.default');
+            return $config ? 'active' : 'inactive';
+        } catch (\Exception $e) {
+            return 'error';
+        }
+    }
+    
+    /**
+     * Get performance data for charts
+     */
+    private function getPerformanceData()
+    {
+        $performanceData = [
+            'response_time' => [],
+            'success_rate' => []
+        ];
+        
+        try {
+            // Get API performance logs for the last 7 days
+            $logs = \App\Models\ApiPerformanceLog::where('monitored_at', '>=', now()->subDays(7))
+                ->orderBy('monitored_at')
+                ->get()
+                ->groupBy(function($log) {
+                    return $log->monitored_at->format('Y-m-d');
+                });
+            
+            $responseTimeData = [];
+            $successRateData = [];
+            
+            foreach ($logs as $date => $dayLogs) {
+                $responseTimeData[] = [
+                    'date' => $date,
+                    'value' => round($dayLogs->avg('response_time_ms'), 2)
+                ];
+                
+                $successfulRequests = $dayLogs->where('status_code', '<', 400)->count();
+                $successRate = $dayLogs->count() > 0 ? ($successfulRequests / $dayLogs->count()) * 100 : 0;
+                $successRateData[] = [
+                    'date' => $date,
+                    'value' => round($successRate, 2)
+                ];
+            }
+            
+            $performanceData = [
+                'response_time' => $responseTimeData,
+                'success_rate' => $successRateData
+            ];
+        } catch (\Exception $e) {
+            // Return empty data if there's an error
+            Log::error('Failed to get performance data', ['error' => $e->getMessage()]);
+        }
+        
+        return $performanceData;
     }
 
     /**
-     * Process 4.1: Format Metrics Data
+     * Generate a report
      */
+    public function generateReport()
+    {
+        try {
+            // Get current statistics
+            $totalClients = \App\Models\Client::count();
+            $activeOperations = \App\Models\Operation::where('status', 'active')->count();
+            $monitoredApis = \App\Models\Api::where('status', 'monitored')->count();
+            $openAlerts = \App\Models\Alert::where('status', 'open')->count();
+            
+            // Get performance data
+            $performanceData = $this->getPerformanceData();
+            
+            // Generate HTML report
+            $viewData = compact(
+                'totalClients',
+                'activeOperations',
+                'monitoredApis',
+                'openAlerts',
+                'performanceData'
+            );
+
+            $html = view('reports.dashboard', $viewData)->render();
+
+            return response($html)
+                ->header('Content-Type', 'text/html')
+                ->header('Content-Disposition', 'attachment; filename="dashboard-report-' . date('Y-m-d') . '.html"');
+            
+        } catch (\Exception $e) {
+            Log::error('Failed to generate report', ['error' => $e->getMessage()]);
+            
+            // Return a simple HTML report if there's an error
+            $html = $this->generateSimpleReport();
+            return response($html)
+                ->header('Content-Type', 'text/html')
+                ->header('Content-Disposition', 'attachment; filename="dashboard-report-' . date('Y-m-d') . '.html"');
+        }
+    }
+    
+    /**
+     * Generate a simple HTML report as fallback
+     */
+    private function generateSimpleReport()
+    {
+        $date = date('Y-m-d H:i:s');
+        return "
+        <!DOCTYPE html>
+        <html dir='rtl' lang='ar'>
+        <head>
+            <meta charset='UTF-8'>
+            <title>تقرير لوحة التحكم</title>
+            <style>
+                body { font-family: Arial, sans-serif; padding: 20px; direction: rtl; }
+                .header { text-align: center; margin-bottom: 30px; }
+                .stats { display: flex; justify-content: space-around; margin: 20px 0; }
+                .stat { text-align: center; padding: 20px; border: 1px solid #ddd; border-radius: 8px; }
+                .stat-value { font-size: 2em; font-weight: bold; color: #007bff; }
+                .stat-label { color: #666; margin-top: 10px; }
+            </style>
+        </head>
+        <body>
+            <div class='header'>
+                <h1>تقرير لوحة التحكم</h1>
+                <p>تاريخ الإنشاء: {$date}</p>
+            </div>
+            <div class='stats'>
+                <div class='stat'>
+                    <div class='stat-value'>{$this->getStatWithFallback('Client::count')}</div>
+                    <div class='stat-label'>إجمالي العملاء</div>
+                </div>
+                <div class='stat'>
+                    <div class='stat-value'>{$this->getStatWithFallback('Operation::where', 'status', 'active', 'count')}</div>
+                    <div class='stat-label'>العمليات النشطة</div>
+                </div>
+                <div class='stat'>
+                    <div class='stat-value'>{$this->getStatWithFallback('Api::where', 'status', 'monitored', 'count')}</div>
+                    <div class='stat-label'>الـ APIs المراقبة</div>
+                </div>
+                <div class='stat'>
+                    <div class='stat-value'>{$this->getStatWithFallback('Alert::where', 'status', 'open', 'count')}</div>
+                    <div class='stat-label'>التنبيهات المفتوحة</div>
+                </div>
+            </div>
+        </body>
+        </html>";
+    }
+    
+    /**
+     * Helper method to get statistics with fallback
+     */
+    private function getStatWithFallback($method, ...$args)
+    {
+        try {
+            if ($method === 'Client::count') {
+                return \App\Models\Client::count();
+            } elseif ($method === 'Operation::where') {
+                return \App\Models\Operation::where($args[0], $args[1])->count();
+            } elseif ($method === 'Api::where') {
+                return \App\Models\Api::where($args[0], $args[1])->count();
+            } elseif ($method === 'Alert::where') {
+                return \App\Models\Alert::where($args[0], $args[1])->count();
+            }
+            return 0;
+        } catch (\Exception $e) {
+            return 0;
+        }
+    }
     public function formatMetrics(Request $request): JsonResponse
     {
         try {

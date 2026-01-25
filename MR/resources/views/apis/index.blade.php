@@ -238,14 +238,6 @@
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm">
                                     <div class="flex space-x-2">
-                                        <button @click="viewApi(api)" 
-                                                class="text-blue-600 hover:text-blue-900 font-medium">
-                                            عرض
-                                        </button>
-                                        <button @click="testApi(api)" 
-                                                class="text-green-600 hover:text-green-900 font-medium">
-                                            اختبار
-                                        </button>
                                         <button @click="editApi(api)" 
                                                 class="text-indigo-600 hover:text-indigo-900 font-medium">
                                             تعديل
@@ -291,9 +283,9 @@
         function apisPage() {
             return {
                 darkMode: false,
-                apis: [],
+                apis: @json($initialData['apis']),
                 filteredApis: [],
-                clients: [],
+                clients: @json($initialData['clients']),
                 statistics: {},
                 search: '',
                 clientFilter: '',
@@ -304,11 +296,27 @@
                 loading: false,
                 
                 init() {
-                    this.darkMode = document.body.classList.contains('dark-mode');
-                    this.loadApis();
-                    this.loadClients();
-                    this.loadStatistics();
+                    this.darkMode = document.documentElement.classList.contains('dark');
+                    // Initialize filteredApis with all APIs
+                    this.filteredApis = [...this.apis];
+                    // Set statistics from controller
+                    this.statistics = @json($initialData['statistics']);
+                    // Initialize charts
                     this.initCharts();
+                },
+                
+                calculateStatistics() {
+                    const total = this.apis.length;
+                    const active = this.apis.filter(api => api.status === 'active').length;
+                    const monitored = this.apis.filter(api => api.status === 'monitored').length;
+                    const errorRate = total > 0 ? Math.round((this.apis.filter(api => api.status === 'error').length / total) * 100) : 0;
+                    
+                    this.statistics = {
+                        total_apis: total,
+                        active_apis: active,
+                        monitored_apis: monitored,
+                        error_rate: errorRate + '%'
+                    };
                 },
                 
                 async loadApis() {
@@ -350,32 +358,33 @@
                 },
                 
                 filterApis() {
-                    let filtered = [...this.apis];
+                    this.filteredApis = this.apis.filter(api => {
+                        // Search by name or URL
+                        const matchesSearch = !this.search || 
+                            (api.name && api.name.toLowerCase().includes(this.search.toLowerCase())) ||
+                            (api.base_url && api.base_url.toLowerCase().includes(this.search.toLowerCase()));
+                            
+                        // Filter by client if clientFilter is set
+                        const matchesClient = !this.clientFilter || 
+                            (api.client && api.client.id == this.clientFilter);
+                            
+                        // Filter by status if statusFilter is set
+                        const matchesStatus = !this.statusFilter || 
+                            api.status === this.statusFilter;
+                            
+                        // Filter by type if typeFilter is set
+                        const matchesType = !this.typeFilter || 
+                            api.type === this.typeFilter;
+                            
+                        return matchesSearch && matchesClient && matchesStatus && matchesType;
+                    });
                     
-                    // Search filter
-                    if (this.search) {
-                        filtered = filtered.filter(api => 
-                            api.name.toLowerCase().includes(this.search.toLowerCase()) ||
-                            api.base_url?.toLowerCase().includes(this.search.toLowerCase())
-                        );
-                    }
+                    // Update pagination
+                    this.currentPage = 1;
+                    this.totalPages = Math.ceil(this.filteredApis.length / 10);
                     
-                    // Client filter
-                    if (this.clientFilter) {
-                        filtered = filtered.filter(api => api.client_id == this.clientFilter);
-                    }
-                    
-                    // Status filter
-                    if (this.statusFilter) {
-                        filtered = filtered.filter(api => api.status === this.statusFilter);
-                    }
-                    
-                    // Type filter
-                    if (this.typeFilter) {
-                        filtered = filtered.filter(api => api.type === this.typeFilter);
-                    }
-                    
-                    this.filteredApis = filtered;
+                    // Update statistics based on filtered results
+                    this.calculateStatistics();
                 },
                 
                 getStatusText(status) {
@@ -399,13 +408,18 @@
                 },
                 
                 initCharts() {
+                    // Get real data for charts
+                    const responseTimeData = this.apis.slice(0, 7).map(api => api.avg_response_time || 0);
+                    const successRateData = this.apis.slice(0, 5).map(api => api.success_rate || 0);
+                    const apiNames = this.apis.slice(0, 5).map(api => api.name || 'API');
+                    
                     // Response Time Chart
                     const responseTimeCtx = document.getElementById('responseTimeChart').getContext('2d');
                     window.charts.createLineChart(responseTimeCtx, {
                         labels: ['00:00', '04:00', '08:00', '12:00', '16:00', '20:00', '24:00'],
                         datasets: [{
                             label: 'وقت الاستجابة (ms)',
-                            data: [120, 135, 125, 140, 130, 145, 138],
+                            data: responseTimeData,
                             borderColor: 'rgb(59, 130, 246)',
                             backgroundColor: 'rgba(59, 130, 246, 0.1)',
                             tension: 0.4
@@ -415,10 +429,10 @@
                     // Success Rate Chart
                     const successRateCtx = document.getElementById('successRateChart').getContext('2d');
                     window.charts.createBarChart(successRateCtx, {
-                        labels: ['API 1', 'API 2', 'API 3', 'API 4', 'API 5'],
+                        labels: apiNames,
                         datasets: [{
                             label: 'معدل النجاح (%)',
-                            data: [95, 88, 92, 85, 90],
+                            data: successRateData,
                             backgroundColor: 'rgba(16, 185, 129, 0.8)',
                             borderColor: 'rgb(16, 185, 129)',
                             borderWidth: 1
@@ -427,49 +441,71 @@
                 },
                 
                 viewApi(api) {
-                    this.$root.showNotification(`عرض API: ${api.name}`, 'info');
-                    window.location.href = `/apis/${api.id}`;
+                    // Navigate to the success page for the API
+                    window.location.href = `/apis/${api.id}/success`;
                 },
                 
                 async testApi(api) {
-                    this.$root.showNotification(`جاري اختبار API: ${api.name}`, 'info');
+                    this.loading = true;
                     try {
-                        const response = await fetch(`/api/apis/${api.id}/test`, {
+                        const response = await fetch(`/apis/${api.id}/test`, {
                             method: 'POST',
                             headers: {
-                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                                'Accept': 'application/json',
+                                'Content-Type': 'application/json'
                             }
                         });
                         
+                        const result = await response.json();
+                        
                         if (response.ok) {
-                            const result = await response.json();
-                            this.$root.showNotification(`تم اختبار API بنجاح - وقت الاستجابة: ${result.response_time}ms`, 'success');
+                            // Show success message
+                            this.$root.showNotification(`تم اختبار الـ API بنجاح: ${result.message || ''}`, 'success');
+                            
+                            // Update the API status in the UI if it changed
+                            const apiIndex = this.apis.findIndex(a => a.id === api.id);
+                            if (apiIndex !== -1) {
+                                this.apis[apiIndex].status = result.api?.status || api.status;
+                                this.apis[apiIndex].status_text = this.getStatusText(this.apis[apiIndex].status);
+                                // Force UI update
+                                this.filterApis();
+                            }
                         } else {
-                            throw new Error('API test failed');
+                            throw new Error(result.message || 'فشل اختبار الـ API');
                         }
                     } catch (error) {
-                        console.error('Failed to test API:', error);
-                        this.$root.showNotification('فشل اختبار API', 'error');
+                        console.error('Error testing API:', error);
+                        this.$root.showNotification(`خطأ في اختبار الـ API: ${error.message}`, 'error');
+                    } finally {
+                        this.loading = false;
                     }
                 },
                 
                 editApi(api) {
-                    this.$root.showNotification(`تعديل API: ${api.name}`, 'info');
                     window.location.href = `/apis/${api.id}/edit`;
                 },
                 
                 async deleteApi(api) {
-                    if (confirm(`هل أنت متأكد من حذف API "${api.name}"؟`)) {
+                    if (confirm('هل أنت متأكد من حذف هذا الـ API؟')) {
                         try {
-                            const response = await fetch(`/api/apis/${api.id}`, {
+                            this.loading = true;
+                            const response = await fetch(`/apis/${api.id}`, {
                                 method: 'DELETE',
                                 headers: {
-                                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                                    'Accept': 'application/json',
+                                    'Content-Type': 'application/json'
                                 }
                             });
                             
-                            if (response.ok) {
-                                this.$root.showNotification(`تم حذف API "${api.name}" بنجاح`, 'success');
+                            const result = await response.json();
+                            
+                            if (result.success) {
+                                alert('تم حذف الـ API بنجاح');
+                                // Remove the API from the list
+                                this.apis = this.apis.filter(a => a.id !== api.id);
+                                this.filterApis();
                                 this.loadApis();
                                 this.loadStatistics();
                             } else {

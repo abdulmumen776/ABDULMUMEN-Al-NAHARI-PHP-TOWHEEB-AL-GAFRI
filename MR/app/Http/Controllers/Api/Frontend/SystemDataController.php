@@ -5,11 +5,13 @@ namespace App\Http\Controllers\Api\Frontend;
 use App\Http\Controllers\Controller;
 use App\Models\Alert;
 use App\Models\Api;
+use App\Models\ApiPerformanceLog;
 use App\Models\Client;
 use App\Models\Operation;
 use App\Models\PerformanceDataset;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 
 class SystemDataController extends Controller
 {
@@ -23,6 +25,73 @@ class SystemDataController extends Controller
             'active_operations' => Operation::where('status', 'active')->count(),
             'monitored_apis' => Api::where('status', 'monitored')->count(),
             'open_alerts' => Alert::where('status', 'open')->count(),
+        ]);
+    }
+
+    /**
+     * Charts data for the dashboard widgets.
+     */
+    public function dashboardCharts(): JsonResponse
+    {
+        $startDate = now()->subDays(6)->startOfDay();
+        $labels = collect(range(6, 0))
+            ->map(fn ($offset) => now()->subDays($offset)->format('Y-m-d'));
+
+        $logs = ApiPerformanceLog::where('monitored_at', '>=', $startDate)
+            ->get()
+            ->groupBy(fn ($log) => optional($log->monitored_at)->format('Y-m-d'));
+
+        $responseTimes = $labels->map(function (string $date) use ($logs) {
+            $dayLogs = $logs->get($date, collect());
+            return $dayLogs->isEmpty() ? 0 : round($dayLogs->avg('response_time_ms'), 2);
+        });
+
+        $errorRates = $labels->map(function (string $date) use ($logs) {
+            $dayLogs = $logs->get($date, collect());
+            if ($dayLogs->isEmpty()) {
+                return 0;
+            }
+            $errors = $dayLogs->where('status_code', '>=', 400)->count();
+            return round(($errors / $dayLogs->count()) * 100, 2);
+        });
+
+        $statusCounts = Operation::select('status', DB::raw('count(*) as total'))
+            ->groupBy('status')
+            ->pluck('total', 'status');
+
+        $operationLabels = collect([
+            'active' => 'نشط',
+            'completed' => 'مكتمل',
+            'scheduled' => 'مجدول',
+            'cancelled' => 'ملغي',
+        ]);
+
+        $operationCounts = $operationLabels->keys()->map(fn ($status) => (int) ($statusCounts[$status] ?? 0));
+
+        return response()->json([
+            'performance' => [
+                'labels' => $labels->values(),
+                'response_times' => $responseTimes->values(),
+                'error_rates' => $errorRates->values(),
+            ],
+            'operations' => [
+                'labels' => $operationLabels->values(),
+                'counts' => $operationCounts->values(),
+            ],
+        ]);
+    }
+
+    /**
+     * System status used in the dashboard panel.
+     */
+    public function systemStatus(): JsonResponse
+    {
+        return response()->json([
+            'database' => $this->checkDatabaseStatus(),
+            'redis_cache' => $this->checkRedisStatus(),
+            'queue_worker' => $this->checkQueueWorkerStatus(),
+            'api_monitoring' => Api::where('status', 'monitored')->exists() ? 'active' : 'inactive',
+            'email_service' => $this->checkEmailServiceStatus(),
         ]);
     }
 
@@ -72,30 +141,15 @@ class SystemDataController extends Controller
                 'id' => $dataset->id,
                 'name' => 'Monitoring Session #' . str_pad((string) $dataset->id, 3, '0', STR_PAD_LEFT),
                 'started_at' => optional($dataset->created_at)->toDateTimeString(),
-                'location' => $serverData['location'] ?? 'Primary Data Center',
-                'camera_count' => $serverData['active_connections'] ?? rand(4, 12),
-                'resolution' => ($serverData['resolution'] ?? '1080p'),
-                'status' => ($serverData['status'] ?? 'active'),
+                'location' => $serverData['location'] ?? null,
+                'camera_count' => $serverData['active_connections'] ?? 0,
+                'resolution' => ($serverData['resolution'] ?? null),
+                'status' => ($serverData['status'] ?? 'inactive'),
                 'duration' => $this->formatDuration(
                     optional($dataset->generated_at)->diffInMinutes($dataset->created_at ?? now(), false)
                 ),
             ];
         });
-
-        if ($sessions->isEmpty()) {
-            $sessions = collect([
-                [
-                    'id' => 1,
-                    'name' => 'Monitoring Session #001',
-                    'started_at' => now()->subHours(2)->toDateTimeString(),
-                    'location' => 'Primary Data Center',
-                    'camera_count' => 6,
-                    'resolution' => '1080p',
-                    'status' => 'active',
-                    'duration' => '2h 00m',
-                ],
-            ]);
-        }
 
         return response()->json($sessions);
     }
@@ -117,9 +171,9 @@ class SystemDataController extends Controller
                     'name' => $api->name,
                     'location' => optional($api->client)->name ?? 'Unassigned',
                     'status' => $api->status === 'error' ? 'offline' : 'online',
-                    'ip_address' => $this->fakeIp($api->id),
-                    'resolution' => $api->status === 'monitored' ? '1080p' : '720p',
-                    'latency_ms' => $latestLog?->response_time_ms ?? rand(40, 180),
+                    'ip_address' => $this->extractHost($api->base_url),
+                    'resolution' => $api->status === 'monitored' ? '1080p' : null,
+                    'latency_ms' => $latestLog?->response_time_ms,
                 ];
             });
 
@@ -140,13 +194,67 @@ class SystemDataController extends Controller
         return sprintf('%dh %02dm', $hours, $remaining);
     }
 
-    private function fakeIp(int $seed): string
+    private function extractHost(?string $url): ?string
     {
-        return sprintf(
-            '10.%d.%d.%d',
-            ($seed * 31) % 255,
-            ($seed * 17) % 255,
-            ($seed * 11) % 255
-        );
+        if (!$url) {
+            return null;
+        }
+
+        $host = parse_url($url, PHP_URL_HOST);
+
+        return $host ?: null;
+    }
+
+    private function checkDatabaseStatus(): string
+    {
+        try {
+            DB::select('SELECT 1');
+            return 'active';
+        } catch (\Exception $e) {
+            return 'error';
+        }
+    }
+
+    private function checkRedisStatus(): string
+    {
+        try {
+            if (!config('redis.default.host')) {
+                return 'inactive';
+            }
+
+            if (!extension_loaded('redis')) {
+                return 'inactive';
+            }
+
+            if (app()->bound('redis')) {
+                $redis = app('redis');
+                $redis->ping();
+                return 'active';
+            }
+
+            return 'inactive';
+        } catch (\Exception $e) {
+            return 'error';
+        }
+    }
+
+    private function checkQueueWorkerStatus(): string
+    {
+        try {
+            $failedJobs = DB::table('failed_jobs')->count();
+            return $failedJobs > 10 ? 'error' : 'active';
+        } catch (\Exception $e) {
+            return 'inactive';
+        }
+    }
+
+    private function checkEmailServiceStatus(): string
+    {
+        try {
+            $driver = config('mail.default');
+            return $driver ? 'active' : 'inactive';
+        } catch (\Exception $e) {
+            return 'error';
+        }
     }
 }

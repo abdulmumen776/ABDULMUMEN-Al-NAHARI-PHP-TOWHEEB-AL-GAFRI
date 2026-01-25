@@ -70,10 +70,22 @@ class OperationDataController extends Controller
             'description' => $operation->description,
             'type' => $operation->type,
             'status' => $operation->status,
+            'status_text' => $this->statusLabel($operation->status),
             'scheduled_at' => optional($operation->scheduled_at)->toDateTimeString(),
             'duration' => $this->formatDuration($operation),
             'created_at' => optional($operation->created_at)->toDateString(),
         ];
+    }
+
+    private function statusLabel(?string $status): string
+    {
+        return match ($status) {
+            'active' => 'نشط',
+            'scheduled' => 'مجدول',
+            'completed' => 'مكتمل',
+            'cancelled' => 'ملغي',
+            default => 'غير معروف',
+        };
     }
 
     /**

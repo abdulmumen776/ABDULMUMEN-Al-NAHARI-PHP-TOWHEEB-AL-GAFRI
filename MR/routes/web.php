@@ -21,9 +21,8 @@ Route::get('/', function () {
     return redirect()->route('login');
 });
 
-Route::get('/dashboard', function () {
-    return view('dashboard.index');
-})->middleware(['auth', 'verified'])->name('dashboard');
+Route::get('/dashboard', [DashboardController::class, 'index'])->middleware(['auth', 'verified'])->name('dashboard');
+Route::get('/api/reports/generate', [DashboardController::class, 'generateReport'])->middleware(['auth', 'verified'])->name('reports.generate');
 
 // Client Routes
 Route::prefix('clients')->middleware(['auth', 'verified'])->group(function () {
@@ -58,6 +57,11 @@ Route::prefix('apis')->middleware(['auth', 'verified'])->group(function () {
     Route::get('/', [ApiController::class, 'index'])->name('apis.index');
     Route::get('/create', [ApiController::class, 'create'])->name('apis.create');
     Route::post('/', [ApiController::class, 'store'])->name('apis.store');
+    
+    // Success route must be before the resource route
+    Route::get('{api}/success', [ApiController::class, 'success'])->name('apis.success');
+    
+    // Regular resource routes
     Route::get('/{api}', [ApiController::class, 'show'])->name('apis.show');
     Route::get('/{api}/edit', [ApiController::class, 'edit'])->name('apis.edit');
     Route::put('/{api}', [ApiController::class, 'update'])->name('apis.update');

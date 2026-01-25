@@ -32,6 +32,61 @@
             </div>
         </div>
 
+        @if (session('success') && session('updated_api'))
+            @php
+                $updatedApi = session('updated_api');
+                $statusLabels = [
+                    'monitored' => 'مراقب',
+                    'inactive' => 'غير نشط',
+                    'error' => 'خطأ',
+                ];
+                $statusText = $statusLabels[$updatedApi['status'] ?? 'monitored'] ?? 'مراقب';
+            @endphp
+            <div class="card card-success p-6 mb-6">
+                <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+                    <div>
+                        <h3 class="text-xl font-semibold text-gray-900 dark:text-gray-100">تم تحديث الـ API بنجاح</h3>
+                        <p class="text-sm text-gray-600 dark:text-gray-400">تم حفظ التعديلات في قاعدة البيانات.</p>
+                    </div>
+                    <span class="badge badge-success">نجاح</span>
+                </div>
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 mt-6">
+                    <div class="p-4 rounded-lg bg-gray-50 dark:bg-gray-800/70">
+                        <p class="text-xs text-gray-500 dark:text-gray-400 mb-1">الاسم</p>
+                        <p class="text-base font-semibold text-gray-900 dark:text-gray-100">{{ $updatedApi['name'] ?? '-' }}</p>
+                    </div>
+                    <div class="p-4 rounded-lg bg-gray-50 dark:bg-gray-800/70">
+                        <p class="text-xs text-gray-500 dark:text-gray-400 mb-1">الرابط الأساسي</p>
+                        <p class="text-base font-semibold text-gray-900 dark:text-gray-100">{{ $updatedApi['base_url'] ?? '-' }}</p>
+                    </div>
+                    <div class="p-4 rounded-lg bg-gray-50 dark:bg-gray-800/70">
+                        <p class="text-xs text-gray-500 dark:text-gray-400 mb-1">الحالة</p>
+                        <p class="text-base font-semibold text-gray-900 dark:text-gray-100">{{ $statusText }}</p>
+                    </div>
+                    <div class="p-4 rounded-lg bg-gray-50 dark:bg-gray-800/70">
+                        <p class="text-xs text-gray-500 dark:text-gray-400 mb-1">معرّف الـ API</p>
+                        <p class="text-base font-semibold text-gray-900 dark:text-gray-100">#{{ $updatedApi['id'] ?? '-' }}</p>
+                    </div>
+                    <div class="p-4 rounded-lg bg-gray-50 dark:bg-gray-800/70">
+                        <p class="text-xs text-gray-500 dark:text-gray-400 mb-1">معرّف العميل</p>
+                        <p class="text-base font-semibold text-gray-900 dark:text-gray-100">{{ $updatedApi['client_id'] ?? '—' }}</p>
+                    </div>
+                    <div class="p-4 rounded-lg bg-gray-50 dark:bg-gray-800/70">
+                        <p class="text-xs text-gray-500 dark:text-gray-400 mb-1">الرسالة</p>
+                        <p class="text-base font-semibold text-gray-900 dark:text-gray-100">{{ session('success') }}</p>
+                    </div>
+                </div>
+                <div class="mt-6">
+                    <p class="text-sm text-gray-600 dark:text-gray-400 mb-2">النتيجة بصيغة JSON</p>
+                    <pre class="text-xs leading-relaxed bg-gray-900 text-gray-100 rounded-lg p-4 overflow-auto">{{ json_encode([
+                        'success' => true,
+                        'api' => $updatedApi,
+                        'message' => 'API updated successfully',
+                    ], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) }}</pre>
+                </div>
+            </div>
+        @endif
+
         <!-- Form Section -->
         <div class="bg-white rounded-xl shadow-lg p-8" :class="darkMode ? 'bg-gray-800' : ''">
             <form action="{{ route('apis.update', $api) }}" method="POST" @submit.prevent="submitForm">
@@ -49,16 +104,20 @@
                                     <label for="name" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                                         اسم الـ API <span class="text-red-500">*</span>
                                     </label>
-                                    <x-input
-                                        type="text"
-                                        name="name"
-                                        id="name"
-                                        required
-                                        placeholder="أدخل اسم الـ API"
-                                        model="form.name"
-                                        :error="errors.name"
-                                        icon="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"
-                                    />
+                                    <div>
+                                        <input
+                                            type="text"
+                                            name="name"
+                                            id="name"
+                                            value="{{ old('name', $api->name) }}"
+                                            placeholder="أدخل اسم الـ API"
+                                            required
+                                            class="form-input w-full rounded-md shadow-sm border-gray-300 focus:border-indigo-500 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 @error('name') border-red-500 @enderror"
+                                        />
+                                        @error('name')
+                                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                        @enderror
+                                    </div>
                                 </div>
 
                                 <div>
@@ -93,14 +152,19 @@
                                     <label for="version" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                                         الإصدار
                                     </label>
-                                    <x-input
-                                        type="text"
-                                        name="version"
-                                        id="version"
-                                        placeholder="v1.0.0"
-                                        model="form.version"
-                                        icon="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                                    />
+                                    <div>
+                                        <input
+                                            type="text"
+                                            name="version"
+                                            id="version"
+                                            value="{{ old('version', $api->version) }}"
+                                            placeholder="مثال: v1.0.0"
+                                            class="form-input w-full rounded-md shadow-sm border-gray-300 focus:border-indigo-500 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 @error('version') border-red-500 @enderror"
+                                        />
+                                        @error('version')
+                                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                        @enderror
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -114,32 +178,40 @@
                                     <label for="base_url" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                                         الرابط الأساسي <span class="text-red-500">*</span>
                                     </label>
-                                    <x-input
-                                        type="url"
-                                        name="base_url"
-                                        id="base_url"
-                                        required
-                                        placeholder="https://api.example.com"
-                                        model="form.base_url"
-                                        :error="errors.base_url"
-                                        icon="M21 12a9 9 0 011-9 9 9 9 0 0119 9z"
-                                    />
+                                    <div>
+                                        <input
+                                            type="url"
+                                            name="base_url"
+                                            id="base_url"
+                                            value="{{ old('base_url', $api->base_url) }}"
+                                            placeholder="مثال: https://api.example.com"
+                                            required
+                                            class="form-input w-full rounded-md shadow-sm border-gray-300 focus:border-indigo-500 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 @error('base_url') border-red-500 @enderror"
+                                        />
+                                        @error('base_url')
+                                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                        @enderror
+                                    </div>
                                 </div>
 
                                 <div>
                                     <label for="endpoint" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                                         المسار <span class="text-red-500">*</span>
                                     </label>
-                                    <x-input
-                                        type="text"
-                                        name="endpoint"
-                                        id="endpoint"
-                                        required
-                                        placeholder="/api/v1/users"
-                                        model="form.endpoint"
-                                        :error="errors.endpoint"
-                                        icon="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                                    />
+                                    <div>
+                                        <input
+                                            type="text"
+                                            name="endpoint"
+                                            id="endpoint"
+                                            value="{{ old('endpoint', $api->endpoint) }}"
+                                            placeholder="مثال: /users"
+                                            required
+                                            class="form-input w-full rounded-md shadow-sm border-gray-300 focus:border-indigo-500 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 @error('endpoint') border-red-500 @enderror"
+                                        />
+                                        @error('endpoint')
+                                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                        @enderror
+                                    </div>
                                 </div>
 
                                 <div>
@@ -161,14 +233,19 @@
                                     <label for="timeout" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                                         المهلة الزمنية (بالثواني)
                                     </label>
-                                    <x-input
-                                        type="number"
-                                        name="timeout"
-                                        id="timeout"
-                                        placeholder="30"
-                                        model="form.timeout"
-                                        icon="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
-                                    />
+                                    <div>
+                                        <input
+                                            type="number"
+                                            name="timeout"
+                                            id="timeout"
+                                            value="{{ old('timeout', $api->timeout) }}"
+                                            placeholder="30"
+                                            class="form-input w-full rounded-md shadow-sm border-gray-300 focus:border-indigo-500 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 @error('timeout') border-red-500 @enderror"
+                                        />
+                                        @error('timeout')
+                                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                        @enderror
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -200,70 +277,93 @@
                                     <label for="auth_token" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                                         التوكن
                                     </label>
-                                    <x-input
-                                        type="password"
-                                        name="auth_token"
-                                        id="auth_token"
-                                        placeholder="أدخل التوكن"
-                                        model="form.auth_token"
-                                        icon="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2h12zM4 10h14M4 6h14"
-                                    />
+                                    <div>
+                                        <input
+                                            type="password"
+                                            name="auth_token"
+                                            id="auth_token"
+                                            value="{{ old('auth_token', $api->auth_token) }}"
+                                            placeholder="أدخل التوكن"
+                                            class="form-input w-full rounded-md shadow-sm border-gray-300 focus:border-indigo-500 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 @error('auth_token') border-red-500 @enderror"
+                                        />
+                                        @error('auth_token')
+                                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                        @enderror
+                                    </div>
                                 </div>
 
                                 <div x-show="form.auth_type === 'basic'">
                                     <label for="auth_username" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                                         اسم المستخدم
                                     </label>
-                                    <x-input
-                                        type="text"
-                                        name="auth_username"
-                                        id="auth_username"
-                                        placeholder="أدخل اسم المستخدم"
-                                        model="form.auth_username"
-                                        icon="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 100-14 7 7 0 0114 0z"
-                                    />
+                                    <div>
+                                        <input
+                                            type="text"
+                                            name="auth_username"
+                                            id="auth_username"
+                                            value="{{ old('auth_username', $api->auth_username) }}"
+                                            placeholder="أدخل اسم المستخدم"
+                                            class="form-input w-full rounded-md shadow-sm border-gray-300 focus:border-indigo-500 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 @error('auth_username') border-red-500 @enderror"
+                                        />
+                                        @error('auth_username')
+                                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                        @enderror
+                                    </div>
                                 </div>
 
                                 <div x-show="form.auth_type === 'basic'">
                                     <label for="auth_password" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                                         كلمة المرور
                                     </label>
-                                    <x-input
-                                        type="password"
-                                        name="auth_password"
-                                        id="auth_password"
-                                        placeholder="أدخل كلمة المرور"
-                                        model="form.auth_password"
-                                        icon="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2h12zM4 10h14M4 6h14"
-                                    />
+                                    <div>
+                                        <input
+                                            type="password"
+                                            name="auth_password"
+                                            id="auth_password"
+                                            placeholder="أدخل كلمة المرور"
+                                            class="form-input w-full rounded-md shadow-sm border-gray-300 focus:border-indigo-500 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 @error('auth_password') border-red-500 @enderror"
+                                        />
+                                        @error('auth_password')
+                                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                        @enderror
+                                    </div>
                                 </div>
 
                                 <div x-show="form.auth_type === 'oauth2'">
                                     <label for="oauth_client_id" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                                         Client ID
                                     </label>
-                                    <x-input
-                                        type="text"
-                                        name="oauth_client_id"
-                                        id="oauth_client_id"
-                                        placeholder="أدخل Client ID"
-                                        model="form.oauth_client_id"
-                                        icon="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2 5h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2h12zM4 10h14"
-                                    />
+                                    <div>
+                                        <input
+                                            type="text"
+                                            name="oauth_client_id"
+                                            id="oauth_client_id"
+                                            value="{{ old('oauth_client_id', $api->oauth_client_id) }}"
+                                            placeholder="أدخل Client ID"
+                                            class="form-input w-full rounded-md shadow-sm border-gray-300 focus:border-indigo-500 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 @error('oauth_client_id') border-red-500 @enderror"
+                                        />
+                                        @error('oauth_client_id')
+                                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                        @enderror
+                                    </div>
                                 </div>
 
                                 <div x-show="form.auth_type === 'oauth2'">
                                     <label for="oauth_client_secret" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                                         Client Secret
                                     </label>
-                                    <x-input
-                                        type="password"
-                                        name="oauth_client_secret"
-                                        id="oauth_client_secret"
-                                        placeholder="أدخل Client Secret"
-                                        model="form.oauth_client_secret"
-                                        icon="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2h12zM4 10h14M4 6h14"
-                                    />
+                                    <div>
+                                        <input
+                                            type="password"
+                                            name="oauth_client_secret"
+                                            id="oauth_client_secret"
+                                            placeholder="أدخل السر السري للعميل"
+                                            class="form-input w-full rounded-md shadow-sm border-gray-300 focus:border-indigo-500 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 @error('oauth_client_secret') border-red-500 @enderror"
+                                        />
+                                        @error('oauth_client_secret')
+                                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                        @enderror
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -277,56 +377,76 @@
                                     <label for="monitoring_interval" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                                         فترة المراقبة (بالدقائق)
                                     </label>
-                                    <x-input
-                                        type="number"
-                                        name="monitoring_interval"
-                                        id="monitoring_interval"
-                                        placeholder="5"
-                                        model="form.monitoring_interval"
-                                        icon="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
-                                    />
+                                    <div>
+                                        <input
+                                            type="number"
+                                            name="monitoring_interval"
+                                            id="monitoring_interval"
+                                            value="{{ old('monitoring_interval', $api->monitoring_interval) }}"
+                                            placeholder="5"
+                                            class="form-input w-full rounded-md shadow-sm border-gray-300 focus:border-indigo-500 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 @error('monitoring_interval') border-red-500 @enderror"
+                                        />
+                                        @error('monitoring_interval')
+                                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                        @enderror
+                                    </div>
                                 </div>
 
                                 <div>
                                     <label for="retry_count" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                                         عدد المحاولات
                                     </label>
-                                    <x-input
-                                        type="number"
-                                        name="retry_count"
-                                        id="retry_count"
-                                        placeholder="3"
-                                        model="form.retry_count"
-                                        icon="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
-                                    />
+                                    <div>
+                                        <input
+                                            type="number"
+                                            name="retry_count"
+                                            id="retry_count"
+                                            value="{{ old('retry_count', $api->retry_count) }}"
+                                            placeholder="3"
+                                            class="form-input w-full rounded-md shadow-sm border-gray-300 focus:border-indigo-500 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 @error('retry_count') border-red-500 @enderror"
+                                        />
+                                        @error('retry_count')
+                                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                        @enderror
+                                    </div>
                                 </div>
 
                                 <div>
                                     <label for="success_threshold" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                                         عتبة النجاح (ms)
                                     </label>
-                                    <x-input
-                                        type="number"
-                                        name="success_threshold"
-                                        id="success_threshold"
-                                        placeholder="1000"
-                                        model="form.success_threshold"
-                                        icon="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-                                    />
+                                    <div>
+                                        <input
+                                            type="number"
+                                            name="success_threshold"
+                                            id="success_threshold"
+                                            value="{{ old('success_threshold', $api->success_threshold) }}"
+                                            placeholder="1000"
+                                            class="form-input w-full rounded-md shadow-sm border-gray-300 focus:border-indigo-500 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 @error('success_threshold') border-red-500 @enderror"
+                                        />
+                                        @error('success_threshold')
+                                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                        @enderror
+                                    </div>
                                 </div>
 
                                 <div>
                                     <label for="error_threshold" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                                         عتبة الخطأ (ms)
                                     </label>
-                                    <x-input
-                                        type="number"
-                                        name="error_threshold"
-                                        id="error_threshold"
-                                        placeholder="5000"
-                                        model="form.error_threshold"
-                                        icon="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                                    />
+                                    <div>
+                                        <input
+                                            type="number"
+                                            name="error_threshold"
+                                            id="error_threshold"
+                                            value="{{ old('error_threshold', $api->error_threshold) }}"
+                                            placeholder="5000"
+                                            class="form-input w-full rounded-md shadow-sm border-gray-300 focus:border-indigo-500 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 @error('error_threshold') border-red-500 @enderror"
+                                        />
+                                        @error('error_threshold')
+                                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                        @enderror
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -342,7 +462,7 @@
                                     </label>
                                     <textarea name="headers" id="headers" rows="4"
                                               x-model="form.headers"
-                                              placeholder='{"Content-Type": "application/json", "Accept": "application/json"}'
+                                              placeholder='أدخل الرؤوس المخصصة (JSON)'
                                               class="form-input resize-none font-mono text-sm"></textarea>
                                 </div>
                             </div>
@@ -451,34 +571,35 @@
     <script>
         function apiEdit() {
             return {
+                darkMode: false,
                 loading: false,
-                errors: {},
+                errors: {!! json_encode($errors->toArray()) !!},
                 form: {
-                    name: '{{ $api->name }}',
-                    client_id: '{{ $api->client_id }}',
-                    status: '{{ $api->status }}',
-                    version: '{{ $api->version ?? 'v1.0.0' }}',
-                    base_url: '{{ $api->base_url }}',
-                    endpoint: '{{ $api->endpoint }}',
-                    method: '{{ $api->method ?? 'GET' }}',
-                    timeout: '{{ $api->timeout ?? 30 }}',
-                    auth_type: '{{ $api->auth_type ?? 'none' }}',
-                    auth_token: '{{ $api->auth_token ?? '' }}',
-                    auth_username: '{{ $api->auth_username ?? '' }}',
-                    auth_password: '{{ $api->auth_password ?? '' }}',
-                    oauth_client_id: '{{ $api->oauth_client_id ?? '' }}',
-                    oauth_client_secret: '{{ $api->oauth_client_secret ?? '' }}',
-                    monitoring_interval: '{{ $api->monitoring_interval ?? 5 }}',
-                    retry_count: '{{ $api->retry_count ?? 3 }}',
-                    success_threshold: '{{ $api->success_threshold ?? 1000 }}',
-                    error_threshold: '{{ $api->error_threshold ?? 5000 }}',
-                    headers: '{{ $api->headers ?? '' }}',
-                    description: '{{ $api->description ?? '' }}',
-                    notes: '{{ $api->notes ?? '' }}',
-                    auto_monitoring: {{ $api->auto_monitoring ?? true }},
-                    notifications: {{ $api->notifications ?? true }},
-                    log_performance: {{ $api->log_performance ?? true }},
-                    health_checks: {{ $api->health_checks ?? true }}
+                    name: '{{ old('name', $api->name) }}',
+                    client_id: '{{ old('client_id', $api->client_id) }}',
+                    status: '{{ old('status', $api->status) }}',
+                    version: '{{ old('version', $api->version ?? 'v1.0.0') }}',
+                    base_url: '{{ old('base_url', $api->base_url) }}',
+                    endpoint: '{{ old('endpoint', $api->endpoint) }}',
+                    method: '{{ old('method', $api->method ?? 'GET') }}',
+                    timeout: '{{ old('timeout', $api->timeout ?? 30) }}',
+                    auth_type: '{{ old('auth_type', $api->auth_type ?? 'none') }}',
+                    auth_token: '{{ old('auth_token', $api->auth_token) }}',
+                    auth_username: '{{ old('auth_username', $api->auth_username) }}',
+                    auth_password: '{{ old('auth_password', $api->auth_password) }}',
+                    oauth_client_id: '{{ old('oauth_client_id', $api->oauth_client_id) }}',
+                    oauth_client_secret: '{{ old('oauth_client_secret', $api->oauth_client_secret) }}',
+                    monitoring_interval: '{{ old('monitoring_interval', $api->monitoring_interval ?? 5) }}',
+                    retry_count: '{{ old('retry_count', $api->retry_count ?? 3) }}',
+                    success_threshold: '{{ old('success_threshold', $api->success_threshold ?? 1000) }}',
+                    error_threshold: '{{ old('error_threshold', $api->error_threshold ?? 5000) }}',
+                    headers: {!! json_encode(old('headers', $api->headers ?: [])) !!},
+                    description: '{{ old('description', $api->description) }}',
+                    notes: '{{ old('notes', $api->notes) }}',
+                    auto_monitoring: {{ old('auto_monitoring', $api->auto_monitoring ? 'true' : 'false') }},
+                    notifications: {{ old('notifications', $api->notifications ? 'true' : 'false') }},
+                    log_performance: {{ old('log_performance', $api->log_performance ? 'true' : 'false') }},
+                    health_checks: {{ old('health_checks', $api->health_checks ? 'true' : 'false') }}
                 },
 
                 init() {
@@ -496,8 +617,6 @@
         }
     </script>
 @endsection
-
-
 
 
 

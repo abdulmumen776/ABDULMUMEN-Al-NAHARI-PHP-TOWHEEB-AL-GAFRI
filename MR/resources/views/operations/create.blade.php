@@ -32,7 +32,7 @@
                     <!-- Left Column -->
                     <div class="space-y-6">
                         <!-- Basic Information -->
-                        <div class="bg-gray-50 dark:bg-gray-800 rounded-xl p-6">
+                        <div class="bg-white rounded-xl shadow-lg p-6" :class="darkMode ? 'bg-gray-800' : ''">
                             <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-4">معلومات أساسية</h3>
                             
                             <div class="space-y-4">
@@ -46,7 +46,6 @@
                                         id="name" 
                                         required
                                         placeholder="أدخل اسم العملية"
-                                        model="form.name"
                                         icon="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
                                     />
                                 </div>
@@ -96,7 +95,7 @@
                         </div>
 
                         <!-- Schedule Information -->
-                        <div class="bg-gray-50 dark:bg-gray-800 rounded-xl p-6">
+                        <div class="bg-white rounded-xl shadow-lg p-6" :class="darkMode ? 'bg-gray-800' : ''">
                             <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-4">معلومات الجدولة</h3>
                             
                             <div class="space-y-4">
@@ -148,7 +147,7 @@
                     <!-- Right Column -->
                     <div class="space-y-6">
                         <!-- Configuration -->
-                        <div class="bg-gray-50 dark:bg-gray-800 rounded-xl p-6">
+                        <div class="bg-white rounded-xl shadow-lg p-6" :class="darkMode ? 'bg-gray-800' : ''">
                             <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-4">الإعدادات والتكوين</h3>
                             
                             <div class="space-y-4">
@@ -212,7 +211,7 @@
                         </div>
 
                         <!-- Headers and Parameters -->
-                        <div class="bg-gray-50 dark:bg-gray-800 rounded-xl p-6">
+                        <div class="bg-white rounded-xl shadow-lg p-6" :class="darkMode ? 'bg-gray-800' : ''">
                             <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-4">الرؤوس والمعلمات</h3>
                             
                             <div class="space-y-4">
@@ -249,7 +248,7 @@
                         </div>
 
                         <!-- Description -->
-                        <div class="bg-gray-50 dark:bg-gray-800 rounded-xl p-6">
+                        <div class="bg-white rounded-xl shadow-lg p-6" :class="darkMode ? 'bg-gray-800' : ''">
                             <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-4">الوصف والملاحظات</h3>
                             
                             <div class="space-y-4">
@@ -276,7 +275,7 @@
                         </div>
 
                         <!-- Settings -->
-                        <div class="bg-gray-50 dark:bg-gray-800 rounded-xl p-6">
+                        <div class="bg-white rounded-xl shadow-lg p-6" :class="darkMode ? 'bg-gray-800' : ''">
                             <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-4">الإعدادات المتقدمة</h3>
                             
                             <div class="space-y-4">
@@ -382,3 +381,4 @@
         }
     </script>
 @endsection
+

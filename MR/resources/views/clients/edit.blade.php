@@ -46,7 +46,7 @@
                     <!-- Left Column -->
                     <div class="space-y-6">
                         <!-- Basic Information -->
-                        <div class="bg-gray-50 dark:bg-gray-800 rounded-xl p-6">
+                        <div class="bg-white rounded-xl shadow-lg p-6" :class="darkMode ? 'bg-gray-800' : ''">
                             <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-4">معلومات أساسية</h3>
                             
                             <div class="space-y-4">
@@ -60,7 +60,7 @@
                                         id="name" 
                                         required
                                         placeholder="أدخل اسم العميل"
-                                        model="form.name"
+                                        :value="{{ old('name', $client->name) }}"
                                         :error="errors.name"
                                         icon="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 100-14 7 7 0 0114 0z"
                                     />
@@ -75,7 +75,7 @@
                                         name="industry" 
                                         id="industry"
                                         placeholder="أدخل الصناعة"
-                                        model="form.industry"
+                                        :value="{{ old('industry', $client->industry) }}"
                                         icon="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1"
                                     />
                                 </div>
@@ -96,7 +96,7 @@
                         </div>
 
                         <!-- Contact Information -->
-                        <div class="bg-gray-50 dark:bg-gray-800 rounded-xl p-6">
+                        <div class="bg-white rounded-xl shadow-lg p-6" :class="darkMode ? 'bg-gray-800' : ''">
                             <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-4">معلومات الاتصال</h3>
                             
                             <div class="space-y-4">
@@ -109,7 +109,7 @@
                                         name="contact_email" 
                                         id="contact_email"
                                         placeholder="example@email.com"
-                                        model="form.contact_email"
+                                        :value="{{ old('contact_email', $client->contact_email) }}"
                                         icon="M3 8a3 3 0 013 3h1a3 3 0 013 3v1a3 3 0 01-3 3H6a3 3 0 01-3-3V6a3 3 0 013-3h1"
                                     />
                                 </div>
@@ -123,7 +123,8 @@
                                         name="contact_phone" 
                                         id="contact_phone"
                                         placeholder="+966 50 123 4567"
-                                        model="form.contact_phone"
+                                        :value="{{ old('contact_phone', $client->contact_phone) }}"
+                                        :value="{{ old('contact_phone', $client->contact_phone) }}"
                                         icon="M3 5a2 2 0 012-2h3.28a1 1 0 01.447-.894l9.425 9.425a1 1 0 01.894.447L10.828 15H16a2 2 0 002-2v-3.28a1 1 0 00-.447-.894L6.169 3.837A1 1 0 015.753 3.837z"
                                     />
                                 </div>
@@ -134,7 +135,7 @@
                     <!-- Right Column -->
                     <div class="space-y-6">
                         <!-- Additional Information -->
-                        <div class="bg-gray-50 dark:bg-gray-800 rounded-xl p-6">
+                        <div class="bg-white rounded-xl shadow-lg p-6" :class="darkMode ? 'bg-gray-800' : ''">
                             <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-4">معلومات إضافية</h3>
                             
                             <div class="space-y-4">
@@ -147,7 +148,7 @@
                                         name="website" 
                                         id="website"
                                         placeholder="https://example.com"
-                                        model="form.website"
+                                        :value="{{ old('website', $client->website) }}"
                                         icon="M21 12a9 9 0 011-9 9 9 9 0 0119 9z"
                                     />
                                 </div>
@@ -175,7 +176,7 @@
                         </div>
 
                         <!-- Settings -->
-                        <div class="bg-gray-50 dark:bg-gray-800 rounded-xl p-6">
+                        <div class="bg-white rounded-xl shadow-lg p-6" :class="darkMode ? 'bg-gray-800' : ''">
                             <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-4">الإعدادات</h3>
                             
                             <div class="space-y-4">
@@ -219,11 +220,11 @@
                             <div class="space-y-2">
                                 <div class="flex items-center">
                                     <div class="w-10 h-10 bg-white bg-opacity-20 rounded-full flex items-center justify-center ml-3">
-                                        <span class="text-lg font-bold" x-text="form.name.charAt(0).toUpperCase()"></span>
+                                        <span class="text-lg font-bold">{{ substr($client->name, 0, 1) }}</span>
                                     </div>
                                     <div>
-                                        <h4 class="font-semibold" x-text="form.name || 'اسم العميل'"></h4>
-                                        <p class="text-sm text-blue-100" x-text="form.industry || 'الصناعة'"></p>
+                                        <h4 class="font-semibold">{{ $client->name ?? 'اسم العميل' }}</h4>
+                                        <p class="text-sm text-blue-100">{{ $client->industry ?? 'الصناعة' }}</p>
                                     </div>
                                 </div>
                                 <div class="flex items-center space-x-4 text-sm">
@@ -307,3 +308,4 @@
         }
     </script>
 @endsection
+

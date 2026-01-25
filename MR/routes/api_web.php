@@ -19,9 +19,11 @@ use Illuminate\Support\Facades\Route;
 |--------------------------------------------------------------------------
 */
 
-Route::middleware('auth:sanctum')->group(function () {
+Route::middleware(['web', 'auth'])->group(function () {
     // Dashboard level statistics and notifications
     Route::get('/dashboard/statistics', [SystemDataController::class, 'dashboardStatistics']);
+    Route::get('/dashboard/charts', [SystemDataController::class, 'dashboardCharts']);
+    Route::get('/dashboard/system-status', [SystemDataController::class, 'systemStatus']);
     Route::get('/notifications', [SystemDataController::class, 'notifications']);
     Route::get('/monitoring/sessions', [SystemDataController::class, 'monitoringSessions']);
     Route::get('/cameras', [SystemDataController::class, 'cameras']);

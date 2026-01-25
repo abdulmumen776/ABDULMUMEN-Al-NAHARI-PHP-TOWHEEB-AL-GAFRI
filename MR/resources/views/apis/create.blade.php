@@ -31,9 +31,64 @@
             </div>
         </div>
 
+        @if (session('success') && session('created_api'))
+            @php
+                $createdApi = session('created_api');
+                $statusLabels = [
+                    'monitored' => 'مراقب',
+                    'inactive' => 'غير نشط',
+                    'error' => 'خطأ',
+                ];
+                $statusText = $statusLabels[$createdApi['status'] ?? 'monitored'] ?? 'مراقب';
+            @endphp
+            <div class="card card-success p-6 mb-6">
+                <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+                    <div>
+                        <h3 class="text-xl font-semibold text-gray-900 dark:text-gray-100">تم إنشاء الـ API بنجاح</h3>
+                        <p class="text-sm text-gray-600 dark:text-gray-400">هذه هي التفاصيل التي تم حفظها في قاعدة البيانات.</p>
+                    </div>
+                    <span class="badge badge-success">نجاح</span>
+                </div>
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 mt-6">
+                    <div class="p-4 rounded-lg bg-gray-50 dark:bg-gray-800/70">
+                        <p class="text-xs text-gray-500 dark:text-gray-400 mb-1">الاسم</p>
+                        <p class="text-base font-semibold text-gray-900 dark:text-gray-100">{{ $createdApi['name'] ?? '-' }}</p>
+                    </div>
+                    <div class="p-4 rounded-lg bg-gray-50 dark:bg-gray-800/70">
+                        <p class="text-xs text-gray-500 dark:text-gray-400 mb-1">الرابط الأساسي</p>
+                        <p class="text-base font-semibold text-gray-900 dark:text-gray-100">{{ $createdApi['base_url'] ?? '-' }}</p>
+                    </div>
+                    <div class="p-4 rounded-lg bg-gray-50 dark:bg-gray-800/70">
+                        <p class="text-xs text-gray-500 dark:text-gray-400 mb-1">الحالة</p>
+                        <p class="text-base font-semibold text-gray-900 dark:text-gray-100">{{ $statusText }}</p>
+                    </div>
+                    <div class="p-4 rounded-lg bg-gray-50 dark:bg-gray-800/70">
+                        <p class="text-xs text-gray-500 dark:text-gray-400 mb-1">معرّف الـ API</p>
+                        <p class="text-base font-semibold text-gray-900 dark:text-gray-100">#{{ $createdApi['id'] ?? '-' }}</p>
+                    </div>
+                    <div class="p-4 rounded-lg bg-gray-50 dark:bg-gray-800/70">
+                        <p class="text-xs text-gray-500 dark:text-gray-400 mb-1">معرّف العميل</p>
+                        <p class="text-base font-semibold text-gray-900 dark:text-gray-100">{{ $createdApi['client_id'] ?? '—' }}</p>
+                    </div>
+                    <div class="p-4 rounded-lg bg-gray-50 dark:bg-gray-800/70">
+                        <p class="text-xs text-gray-500 dark:text-gray-400 mb-1">الرسالة</p>
+                        <p class="text-base font-semibold text-gray-900 dark:text-gray-100">{{ session('success') }}</p>
+                    </div>
+                </div>
+                <div class="mt-6">
+                    <p class="text-sm text-gray-600 dark:text-gray-400 mb-2">النتيجة بصيغة JSON</p>
+                    <pre class="text-xs leading-relaxed bg-gray-900 text-gray-100 rounded-lg p-4 overflow-auto">{{ json_encode([
+                        'success' => true,
+                        'api' => $createdApi,
+                        'message' => 'API created successfully',
+                    ], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) }}</pre>
+                </div>
+            </div>
+        @endif
+
         <!-- Form Section -->
         <div class="bg-white rounded-xl shadow-lg p-8" :class="darkMode ? 'bg-gray-800' : ''">
-            <form action="{{ route('apis.store') }}" method="POST" @submit.prevent="submitForm">
+            <form id="apiForm" action="{{ route('apis.store') }}" method="POST">
                 @csrf
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
                     <!-- Left Column -->
@@ -53,7 +108,6 @@
                                         id="name" 
                                         required
                                         placeholder="أدخل اسم الـ API"
-                                        model="form.name"
                                         icon="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"
                                     />
                                 </div>
@@ -94,8 +148,7 @@
                                         type="text" 
                                         name="version" 
                                         id="version"
-                                        placeholder="v1.0.0"
-                                        model="form.version"
+                                        placeholder="مثال: v1.0.0"
                                         icon="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
                                     />
                                 </div>
@@ -114,10 +167,10 @@
                                     <x-input 
                                         type="url" 
                                         name="base_url" 
-                                        id="base_url" 
+                                        id="base_url"
+                                        placeholder="مثال: https://api.example.com" 
                                         required
                                         placeholder="https://api.example.com"
-                                        model="form.base_url"
                                         icon="M21 12a9 9 0 011-9 9 9 9 0 0119 9z"
                                     />
                                 </div>
@@ -129,10 +182,10 @@
                                     <x-input 
                                         type="text" 
                                         name="endpoint" 
-                                        id="endpoint" 
+                                        id="endpoint"
+                                        placeholder="مثال: /users" 
                                         required
                                         placeholder="/api/v1/users"
-                                        model="form.endpoint"
                                         icon="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
                                     />
                                 </div>
@@ -199,6 +252,7 @@
                                         type="password" 
                                         name="auth_token" 
                                         id="auth_token"
+                                        placeholder="أدخل رمز المصادقة"
                                         placeholder="أدخل التوكن"
                                         model="form.auth_token"
                                         icon="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2h12zM4 10h14M4 6h14"
@@ -214,6 +268,7 @@
                                         name="auth_username" 
                                         id="auth_username"
                                         placeholder="أدخل اسم المستخدم"
+                                        placeholder="أدخل اسم المستخدم"
                                         model="form.auth_username"
                                         icon="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 100-14 7 7 0 0114 0z"
                                     />
@@ -228,6 +283,7 @@
                                         name="auth_password" 
                                         id="auth_password"
                                         placeholder="أدخل كلمة المرور"
+                                        placeholder="أدخل كلمة المرور"
                                         model="form.auth_password"
                                         icon="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2h12zM4 10h14M4 6h14"
                                     />
@@ -241,6 +297,7 @@
                                         type="text" 
                                         name="oauth_client_id" 
                                         id="oauth_client_id"
+                                        placeholder="أدخل معرف العميل"
                                         placeholder="أدخل Client ID"
                                         model="form.oauth_client_id"
                                         icon="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2 5h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2h12zM4 10h14"
@@ -255,6 +312,7 @@
                                         type="password" 
                                         name="oauth_client_secret" 
                                         id="oauth_client_secret"
+                                        placeholder="أدخل السر السري للعميل"
                                         placeholder="أدخل Client Secret"
                                         model="form.oauth_client_secret"
                                         icon="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2h12zM4 10h14M4 6h14"
@@ -276,6 +334,7 @@
                                         type="number" 
                                         name="monitoring_interval" 
                                         id="monitoring_interval"
+                                        placeholder="بالدقائق"
                                         placeholder="5"
                                         model="form.monitoring_interval"
                                         icon="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
@@ -290,6 +349,7 @@
                                         type="number" 
                                         name="retry_count" 
                                         id="retry_count"
+                                        placeholder="عدد المحاولات"
                                         placeholder="3"
                                         model="form.retry_count"
                                         icon="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
@@ -304,6 +364,7 @@
                                         type="number" 
                                         name="success_threshold" 
                                         id="success_threshold"
+                                        placeholder=
                                         placeholder="1000"
                                         model="form.success_threshold"
                                         icon="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
@@ -318,6 +379,7 @@
                                         type="number" 
                                         name="error_threshold" 
                                         id="error_threshold"
+                                        placeholder=
                                         placeholder="5000"
                                         model="form.error_threshold"
                                         icon="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
@@ -337,7 +399,7 @@
                                     </label>
                                     <textarea name="headers" id="headers" rows="4"
                                               x-model="form.headers"
-                                              placeholder='{"Content-Type": "application/json", "Accept": "application/json"}'
+                                              placeholder='أدخل الرؤوس المخصصة (JSON)'
                                               class="form-input resize-none font-mono text-sm"></textarea>
                                 </div>
                             </div>
@@ -446,17 +508,18 @@
     <script>
         function apiForm() {
             return {
+                darkMode: false,
                 loading: false,
                 errors: {},
                 form: {
-                    name: '',
                     client_id: '',
-                    status: 'monitored',
-                    version: 'v1.0.0',
+                    name: '',
                     base_url: '',
                     endpoint: '',
                     method: 'GET',
-                    timeout: 30,
+                    owner: '',
+                    description: '',
+                    status: 'monitored',
                     auth_type: 'none',
                     auth_token: '',
                     auth_username: '',
@@ -467,28 +530,65 @@
                     retry_count: 3,
                     success_threshold: 1000,
                     error_threshold: 5000,
-                    headers: '{"Content-Type": "application/json", "Accept": "application/json"}',
-                    description: '',
-                    notes: '',
+                    headers: '{\n    "Content-Type": "application/json",\n    "Accept": "application/json"\n}',
                     auto_monitoring: true,
                     notifications: true,
                     log_performance: true,
                     health_checks: true
                 },
                 
-                init() {
-                    // Initialize form with old data if exists
-                    @if(old())
-                        this.form = @json(old());
-                    @endif
+                submitForm(event) {
+                    event.preventDefault();
+                    this.loading = true;
+                    
+                    // Submit the form normally
+                    const form = document.getElementById('apiForm');
+                    const formData = new FormData(form);
+                    
+                    fetch(form.action, {
+                        method: 'POST',
+                        body: formData,
+                        headers: {
+                            'Accept': 'application/json',
+                            'X-Requested-With': 'XMLHttpRequest',
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.redirect) {
+                            window.location.href = data.redirect;
+                        } else if (data.success) {
+                            window.location.href = '{{ route('apis.index') }}/' + data.api.id + '/success';
+                        } else {
+                            // Handle validation errors
+                            if (data.errors) {
+                                this.errors = data.errors;
+                            }
+                            this.loading = false;
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        this.loading = false;
+                        // If there's an error, try submitting the form normally
+                        form.submit();
+                    });
                 },
                 
-                async submitForm() {
-                    this.loading = true;
-                    this.errors = {};
+                init() {
+                    // Initialize form with any existing data
+                    @if(old())
+                        @foreach(old() as $key => $value)
+                            if (this.form.hasOwnProperty('{{ $key }}')) {
+                                this.form['{{ $key }}'] = {!! is_array($value) ? json_encode($value) : "'" . addslashes($value) . "'" !!};
+                            }
+                        @endforeach
+                    @endif
                     
-                    // Submit form normally
-                    event.target.submit();
+                    // Check for dark mode
+                    this.darkMode = document.documentElement.classList.contains('dark') || 
+                                 (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches));
                 }
             }
         }
