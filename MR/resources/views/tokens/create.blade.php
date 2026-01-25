@@ -120,14 +120,21 @@
                                         التوكن
                                     </label>
                                     <div class="flex space-x-2">
-                                        <x-input 
-                                            type="text" 
-                                            name="token" 
-                                            id="token"
-                                            placeholder="اترك فارغاً للإنشاء التلقائي"
-                                            model="form.token"
-                                            icon="M15 7h2a5 5 0 013.9 8.1L15 17M7 7h2a5 5 0 00-3.9 8.1L9 17"
-                                        />
+                                        <div class="flex-grow relative">
+                                            <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                                                <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7h2a5 5 0 013.9 8.1L15 17M7 7h2a5 5 0 00-3.9 8.1L9 17"></path>
+                                                </svg>
+                                            </div>
+                                            <input 
+                                                type="text" 
+                                                name="token" 
+                                                id="token"
+                                                x-model="form.token"
+                                                class="form-input pr-10"
+                                                placeholder="سيتم إنشاء التوكن تلقائياً"
+                                            />
+                                        </div>
                                         <button type="button" @click="generateToken()" class="btn btn-outline">
                                             إنشاء تلقائي
                                         </button>
@@ -446,11 +453,121 @@
         </div>
     </div>
 
+    <!-- Success Modal -->
+    <div x-show="showTokenModal" 
+         x-transition:enter="transition ease-out duration-300"
+         x-transition:enter-start="opacity-0"
+         x-transition:enter-end="opacity-100"
+         x-transition:leave="transition ease-in duration-200"
+         x-transition:leave-start="opacity-100"
+         x-transition:leave-end="opacity-0"
+         class="fixed inset-0 z-50 overflow-y-auto"
+         style="display: none;">
+        <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:p-0">
+            <div x-show="showTokenModal" 
+                 x-transition:enter="transition ease-out duration-300"
+                 x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+                 x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100"
+                 x-transition:leave="transition ease-in duration-200"
+                 x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100"
+                 x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+                 class="relative inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+                
+                <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                    <div class="sm:flex sm:items-start">
+                        <div class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-green-100 sm:mx-0 sm:h-10 sm:w-10">
+                            <svg class="h-6 w-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                            </svg>
+                        </div>
+                        <div class="mt-3 text-center sm:mt-0 sm:mr-4 sm:text-left">
+                            <h3 class="text-lg leading-6 font-medium text-gray-900">
+                                تم إنشاء التوكن بنجاح!
+                            </h3>
+                            <div class="mt-2">
+                                <p class="text-sm text-gray-500">
+                                    تم إنشاء توكن API جديد بنجاح. يمكنك نسخ التوكن من الحقل أدناه.
+                                </p>
+                                <div class="mt-3 p-3 bg-gray-100 rounded-md">
+                                    <p class="text-xs font-mono text-gray-700 break-all" x-text="generatedToken"></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                    <button type="button" 
+                            @click="showTokenModal = false"
+                            class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:ml-3 sm:w-auto sm:text-sm">
+                        موافق
+                    </button>
+                    <button type="button" 
+                            @click="copyTokenToClipboard()"
+                            class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
+                        نسخ التوكن
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Error Modal -->
+    <div x-show="showErrorModal" 
+         x-transition:enter="transition ease-out duration-300"
+         x-transition:enter-start="opacity-0"
+         x-transition:enter-end="opacity-100"
+         x-transition:leave="transition ease-in duration-200"
+         x-transition:leave-start="opacity-100"
+         x-transition:leave-end="opacity-0"
+         class="fixed inset-0 z-50 overflow-y-auto"
+         style="display: none;">
+        <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:p-0">
+            <div x-show="showErrorModal" 
+                 x-transition:enter="transition ease-out duration-300"
+                 x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+                 x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100"
+                 x-transition:leave="transition ease-in duration-200"
+                 x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100"
+                 x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+                 class="relative inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+                
+                <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                    <div class="sm:flex sm:items-start">
+                        <div class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-red-100 sm:mx-0 sm:h-10 sm:w-10">
+                            <svg class="h-6 w-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                            </svg>
+                        </div>
+                        <div class="mt-3 text-center sm:mt-0 sm:mr-4 sm:text-left">
+                            <h3 class="text-lg leading-6 font-medium text-gray-900">
+                                خطأ
+                            </h3>
+                            <div class="mt-2">
+                                <p class="text-sm text-gray-500" x-text="errorMessage"></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                    <button type="button" 
+                            @click="showErrorModal = false"
+                            class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-red-600 text-base font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 sm:ml-3 sm:w-auto sm:text-sm">
+                        موافق
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
         function tokenForm() {
             return {
                 loading: false,
                 errors: {},
+                showTokenModal: false,
+                showErrorModal: false,
+                generatedToken: '',
+                errorMessage: '',
                 form: {
                     name: '',
                     client_id: '',
@@ -487,16 +604,72 @@
                 },
                 
                 generateToken() {
-                    // Generate a professional API token format: prefix_random_suffix
-                    const prefix = 'tok';
-                    const randomPart = Array.from(crypto.getRandomValues(new Uint8Array(16)), byte => byte.toString(16).padStart(2, '0')).join('');
-                    const timestamp = Date.now().toString(36);
-                    const token = `${prefix}_${randomPart}_${timestamp}`;
+                    try {
+                        // Generate a professional API token format: prefix_random_suffix
+                        const prefix = 'tok';
+                        let randomPart = '';
+                        
+                        // Try using crypto API if available, otherwise fallback to Math.random
+                        if (window.crypto && window.crypto.getRandomValues) {
+                            randomPart = Array.from(crypto.getRandomValues(new Uint8Array(16)), byte => byte.toString(16).padStart(2, '0')).join('');
+                        } else {
+                            // Fallback for older browsers
+                            randomPart = Math.random().toString(36).substring(2, 18) + Math.random().toString(36).substring(2, 18);
+                        }
+                        
+                        const timestamp = Date.now().toString(36);
+                        const token = `${prefix}_${randomPart}_${timestamp}`;
+                        
+                        this.form.token = token;
+                        
+                        // Show modal popup instead of alert
+                        this.showTokenModal = true;
+                        this.generatedToken = token;
+                        
+                        console.log('Token generated:', token); // Debug log
+                    } catch (error) {
+                        console.error('Error generating token:', error);
+                        this.errorMessage = 'حدث خطأ أثناء إنشاء التوكن';
+                        this.showErrorModal = true;
+                    }
+                },
+                
+                copyTokenToClipboard() {
+                    if (navigator.clipboard && window.isSecureContext) {
+                        navigator.clipboard.writeText(this.generatedToken).then(() => {
+                            this.showTokenModal = false;
+                            if (this.$root && this.$root.showNotification) {
+                                this.$root.showNotification('تم نسخ التوكن إلى الحافظة', 'success');
+                            }
+                        }).catch(err => {
+                            console.error('Failed to copy token: ', err);
+                            this.fallbackCopyTokenToClipboard();
+                        });
+                    } else {
+                        this.fallbackCopyTokenToClipboard();
+                    }
+                },
+                
+                fallbackCopyTokenToClipboard() {
+                    const textArea = document.createElement("textarea");
+                    textArea.value = this.generatedToken;
+                    textArea.style.position = "fixed";
+                    textArea.style.left = "-999999px";
+                    document.body.appendChild(textArea);
+                    textArea.focus();
+                    textArea.select();
                     
-                    this.form.token = token;
+                    try {
+                        document.execCommand('copy');
+                        this.showTokenModal = false;
+                        if (this.$root && this.$root.showNotification) {
+                            this.$root.showNotification('تم نسخ التوكن إلى الحافظة', 'success');
+                        }
+                    } catch (err) {
+                        console.error('Fallback: Oops, unable to copy', err);
+                    }
                     
-                    // Show success feedback
-                    this.$root.showNotification('تم إنشاء التوكن بنجاح', 'success');
+                    document.body.removeChild(textArea);
                 },
                 
                 async submitForm() {

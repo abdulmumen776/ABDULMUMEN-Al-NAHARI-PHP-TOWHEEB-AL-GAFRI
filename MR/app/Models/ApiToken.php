@@ -16,6 +16,7 @@ class ApiToken extends Model
      */
     protected $fillable = [
         'user_id',
+        'client_id',
         'token',
         'name',
         'abilities',
@@ -40,6 +41,14 @@ class ApiToken extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    /**
+     * Get the client associated with the API token.
+     */
+    public function client(): BelongsTo
+    {
+        return $this->belongsTo(Client::class);
     }
 
     /**

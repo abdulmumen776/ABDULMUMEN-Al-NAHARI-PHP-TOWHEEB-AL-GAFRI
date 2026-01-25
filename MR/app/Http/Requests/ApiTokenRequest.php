@@ -24,6 +24,7 @@ class ApiTokenRequest extends FormRequest
             'abilities' => 'nullable|array',
             'abilities.*' => 'string|in:*,actions:read,actions:write,actions:delete,operations:read,operations:write,operations:delete,apis:read,apis:write,apis:delete,performance:read,performance:write,dashboards:read,dashboards:write,alerts:read,alerts:write,patterns:read,patterns:write,unlimited',
             'expires_at' => 'nullable|date|after:now|before:' . now()->addYears(1)->format('Y-m-d'),
+            'webhook_url' => 'nullable|url',
         ];
     }
 
@@ -39,6 +40,7 @@ class ApiTokenRequest extends FormRequest
             'abilities.*.in' => 'Invalid ability specified',
             'expires_at.after' => 'Expiration date must be in the future',
             'expires_at.before' => 'Token may not expire more than 1 year from now',
+            'webhook_url.url' => 'يجب أن يكون رابط Webhook رابط URL صحيح',
         ];
     }
 
@@ -51,6 +53,7 @@ class ApiTokenRequest extends FormRequest
             'name' => 'token name',
             'abilities' => 'abilities',
             'expires_at' => 'expiration date',
+            'webhook_url' => 'رابط Webhook',
         ];
     }
 

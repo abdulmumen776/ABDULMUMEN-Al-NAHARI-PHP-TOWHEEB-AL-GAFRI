@@ -18,38 +18,65 @@ class ApiTokenController extends Controller
      */
     public function index()
     {
-        $tokens = Auth::user()->apiTokens()
-            ->orderByDesc('created_at')
-            ->get()
-            ->map(function ($token) {
-                return [
-                    'id' => $token->id,
-                    'name' => $token->name,
-                    'formatted_token' => $token->formatted_token,
-                    'abilities' => $token->abilities,
-                    'status' => $token->status,
-                    'status_color' => $token->status_color,
-                    'last_used_at' => $token->last_used_at,
-                    'days_since_last_use' => $token->days_since_last_use,
-                    'expires_at' => $token->expires_at,
-                    'remaining_days' => $token->remaining_days,
-                    'created_at' => $token->created_at,
-                    'usage_stats' => $token->usage_stats,
-                ];
-            });
+        try {
+            $tokens = Auth::user()->apiTokens()
+                ->orderByDesc('created_at')
+                ->get()
+                ->map(function ($token) {
+                    // Handle missing client relationship gracefully
+                    $clientName = 'غير محدد';
+                    if (isset($token->client_id) && $token->client_id) {
+                        try {
+                            $client = $token->client;
+                            $clientName = $client ? $client->name : 'غير محدد';
+                        } catch (\Exception $e) {
+                            // Client relationship doesn't exist yet
+                            $clientName = 'غير محدد';
+                        }
+                    }
+
+                    // Handle abilities
+                    $abilities = ['*']; // Default abilities
+                    if ($token->abilities && is_array($token->abilities)) {
+                        $abilities = $token->abilities;
+                    }
+
+                    return [
+                        'id' => $token->id,
+                        'name' => $token->name,
+                        'formatted_token' => $token->formatted_token ?? 'N/A',
+                        'abilities' => $abilities,
+                        'status' => $token->status ?? 'active',
+                        'status_color' => $token->status_color ?? 'green',
+                        'last_used_at' => $token->last_used_at ? $token->last_used_at->format('Y-m-d H:i:s') : null,
+                        'days_since_last_use' => $token->days_since_last_use ?? null,
+                        'expires_at' => $token->expires_at ? $token->expires_at->format('Y-m-d H:i:s') : null,
+                        'remaining_days' => $token->remaining_days ?? null,
+                        'created_at' => $token->created_at ? $token->created_at->format('Y-m-d H:i:s') : null,
+                        'usage_stats' => $token->usage_stats ?? [],
+                        'client_id' => $token->client_id ?? null,
+                        'client_name' => $clientName,
+                    ];
+                });
+        } catch (\Exception $e) {
+            // Fallback if there are database issues
+            $tokens = [];
+        }
 
         $statistics = [
             'total_tokens' => Auth::user()->apiTokens()->count(),
             'active_tokens' => Auth::user()->apiTokens()->valid()->count(),
             'expired_tokens' => Auth::user()->apiTokens()->expired()->count(),
-            'inactive_tokens' => Auth::user()->apiTokens()->filter(fn($token) => $token->isInactive())->count(),
+            'inactive_tokens' => Auth::user()->apiTokens()->get()->filter(fn($token) => $token->isInactive())->count(),
             'tokens_expiring_soon' => Auth::user()->apiTokens()->valid()
                 ->where('expires_at', '<=', now()->addDays(7))
                 ->count(),
             'never_used_tokens' => Auth::user()->apiTokens()->whereNull('last_used_at')->count(),
         ];
 
-        return view('tokens.index', compact('tokens', 'statistics'));
+        $clients = Client::all(['id', 'name']);
+
+        return view('tokens.index', compact('tokens', 'statistics', 'clients'));
     }
 
     /**
@@ -64,7 +91,7 @@ class ApiTokenController extends Controller
     /**
      * Store a newly created API token in storage.
      */
-    public function store(Request $request): JsonResponse
+    public function store(Request $request)
     {
         try {
             $validated = $request->validate([
@@ -72,6 +99,7 @@ class ApiTokenController extends Controller
                 'abilities' => 'nullable|array',
                 'abilities.*' => 'string',
                 'expires_at' => 'nullable|date|after:now',
+                'webhook_url' => 'nullable|url',
             ]);
 
             // Set default abilities if not provided
@@ -95,19 +123,26 @@ class ApiTokenController extends Controller
                 'abilities' => $abilities,
             ]);
 
-            return response()->json([
-                'success' => true,
-                'token' => [
-                    'id' => $token->id,
-                    'name' => $token->name,
-                    'token' => $token->token, // Only show full token on creation
-                    'formatted_token' => $token->formatted_token,
-                    'abilities' => $token->abilities,
-                    'expires_at' => $token->expires_at,
-                    'created_at' => $token->created_at,
-                ],
-                'message' => 'API token created successfully'
-            ], 201);
+             if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'token' => [
+                        'id' => $token->id,
+                        'name' => $token->name,
+                        'token' => $token->token, // Only show full token on creation
+                        'formatted_token' => $token->formatted_token,
+                        'abilities' => $token->abilities,
+                        'expires_at' => $token->expires_at,
+                        'created_at' => $token->created_at,
+                    ],
+                    'message' => 'API token created successfully'
+                ], 201);
+            }
+
+            // Regular form submission - redirect with success message
+            return redirect()
+                ->route('tokens.index')
+                ->with('success', 'تم إنشاء التوكن بنجاح');
 
         } catch (\Exception $e) {
             Log::error('Failed to create API token', [
@@ -115,44 +150,66 @@ class ApiTokenController extends Controller
                 'error' => $e->getMessage()
             ]);
 
-            return response()->json([
-                'success' => false,
-                'message' => 'Failed to create API token',
-                'error' => $e->getMessage()
-            ], 500);
+            // Check if request expects JSON (API call) or regular form submission
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Failed to create API token',
+                    'error' => $e->getMessage()
+                ], 500);
+            }
+
+            // Regular form submission - redirect back with error message
+            return redirect()
+                ->back()
+                ->withInput()
+                ->with('error', 'فشل في إنشاء التوكن: ' . $e->getMessage());
         }
     }
 
-    /**
-     * Display the specified API token.
-     */
-    public function show(ApiToken $apiToken): JsonResponse
+     
+    public function show(ApiToken $apiToken)
     {
         try {
             // Ensure the user owns this token
             if ($apiToken->user_id !== Auth::id()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Unauthorized'
-                ], 403);
+                if (request()->expectsJson()) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Unauthorized'
+                    ], 403);
+                }
+                abort(403);
             }
 
-            return response()->json([
-                'success' => true,
-                'token' => [
-                    'id' => $apiToken->id,
-                    'name' => $apiToken->name,
-                    'formatted_token' => $apiToken->formatted_token,
-                    'abilities' => $apiToken->abilities,
-                    'status' => $apiToken->status,
-                    'status_color' => $apiToken->status_color,
-                    'last_used_at' => $apiToken->last_used_at,
-                    'days_since_last_use' => $apiToken->days_since_last_use,
-                    'expires_at' => $apiToken->expires_at,
-                    'remaining_days' => $apiToken->remaining_days,
-                    'created_at' => $apiToken->created_at,
-                    'usage_stats' => $apiToken->usage_stats,
-                ]
+            $payload = [
+                'id' => $apiToken->id,
+                'name' => $apiToken->name,
+                'token' => $apiToken->token,
+                'formatted_token' => $apiToken->formatted_token,
+                'abilities' => $apiToken->abilities,
+                'status' => $apiToken->status,
+                'status_color' => $apiToken->status_color,
+                'last_used_at' => $apiToken->last_used_at,
+                'days_since_last_use' => $apiToken->days_since_last_use,
+                'expires_at' => $apiToken->expires_at,
+                'remaining_days' => $apiToken->remaining_days,
+                'created_at' => $apiToken->created_at,
+                'usage_stats' => $apiToken->getUsageStats(),
+            ];
+
+            // Check if request expects JSON (API call) or regular web request
+            if (request()->expectsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'token' => $payload,
+                ]);
+            }
+
+            // Regular web request - return view
+            return view('tokens.show', [
+                'token' => $apiToken,
+                'tokenPayload' => $payload,
             ]);
 
         } catch (\Exception $e) {
@@ -162,11 +219,40 @@ class ApiTokenController extends Controller
                 'error' => $e->getMessage()
             ]);
 
-            return response()->json([
-                'success' => false,
-                'message' => 'Failed to retrieve API token',
+            if (request()->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Failed to retrieve API token',
+                    'error' => $e->getMessage()
+                ], 500);
+            }
+
+            return redirect()->route('tokens.index')->with('error', 'فشل في عرض التوكن');
+        }
+    }
+
+    /**
+     * Show the form for editing the specified API token.
+     */
+    public function edit(ApiToken $apiToken)
+    {
+        try {
+            // Ensure the user owns this token
+            if ($apiToken->user_id !== Auth::id()) {
+                abort(403);
+            }
+
+            $clients = Client::all(['id', 'name']);
+            return view('tokens.edit', compact('apiToken', 'clients'));
+
+        } catch (\Exception $e) {
+            Log::error('Failed to edit API token', [
+                'token_id' => $apiToken->id,
+                'user_id' => Auth::id(),
                 'error' => $e->getMessage()
-            ], 500);
+            ]);
+
+            return redirect()->route('tokens.index')->with('error', 'فشل في فتح صفحة التعديل');
         }
     }
 

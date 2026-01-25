@@ -8,7 +8,7 @@
     <div x-data="tokensPage()" x-init="init()" x-cloak>
         <!-- Header with Create Button -->
         <div class="bg-white rounded-xl shadow-lg p-6 mb-6" :class="darkMode ? 'bg-gray-800' : ''">
-            <div class="flex justify-between items-center">
+            <div class="flex justify-between items-center mb-4">
                 <h3 class="text-lg font-semibold" :class="darkMode ? 'text-gray-200' : 'text-gray-800'">توكنات الـ API الخاصة بك</h3>
                 <a href="{{ route('tokens.create') }}" 
                 class="btn btn-primary">
@@ -19,6 +19,22 @@
                     توكن جديد
                 </span>
             </a>
+            </div>
+            
+            <!-- Client Filter -->
+            <div class="flex items-center space-x-4">
+                <label class="text-sm font-medium" :class="darkMode ? 'text-gray-300' : 'text-gray-700'">تصفية حسب العميل:</label>
+                <select x-model="selectedClient" 
+                        @change="filterTokensByClient()"
+                        class="form-input w-64">
+                    <option value="">جميع العملاء</option>
+                    <template x-for="client in clients" :key="client.id">
+                        <option :value="client.id" x-text="client.name"></option>
+                    </template>
+                </select>
+                <span class="text-sm text-gray-500" :class="darkMode ? 'text-gray-400' : ''">
+                    عرض <span x-text="filteredTokens.length"></span> من <span x-text="tokens.length"></span> توكن
+                </span>
             </div>
         </div>
 
@@ -95,6 +111,9 @@
                                 التوكن
                             </th>
                             <th class="px-6 py-3 text-right text-xs font-medium uppercase tracking-wider" :class="darkMode ? 'text-gray-300' : 'text-gray-500'">
+                                العميل
+                            </th>
+                            <th class="px-6 py-3 text-right text-xs font-medium uppercase tracking-wider" :class="darkMode ? 'text-gray-300' : 'text-gray-500'">
                                 الصلاحيات
                             </th>
                             <th class="px-6 py-3 text-right text-xs font-medium uppercase tracking-wider" :class="darkMode ? 'text-gray-300' : 'text-gray-500'">
@@ -112,8 +131,8 @@
                         </tr>
                     </thead>
                     <tbody class="divide-y" :class="darkMode ? 'divide-gray-700' : 'divide-gray-200'">
-                        <template x-for="token in tokens" :key="token.id">
-                            <tr class="hover:bg-gray-50 dark:hover:bg-gray-700 transition-all">
+                        <template x-for="token in filteredTokens" :key="token.id">
+                            <tr class="hover:bg-white-50 dark:hover:bg-gray-600 transition-all cursor-pointer">
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     <div class="flex items-center">
                                         <div class="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-bold ml-3">
@@ -126,10 +145,14 @@
                                     </div>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
+                                    <span class="text-sm" :class="darkMode ? 'text-gray-300' : 'text-gray-900'" x-text="token.client_name || 'غير محدد'"></span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
                                     <div class="flex flex-wrap gap-1">
-                                        <template x-for="ability in token.abilities" :key="ability">
+                                        <template x-for="ability in (token.abilities || [])" :key="ability">
                                             <span class="px-2 py-1 text-xs rounded-full bg-blue-100 text-blue-800" x-text="ability"></span>
                                         </template>
+                                        <span x-show="!token.abilities || token.abilities.length === 0" class="text-gray-500">لا توجد صلاحيات</span>
                                     </div>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
@@ -139,7 +162,7 @@
                                               'bg-gray-100 text-gray-800': token.status === 'inactive',
                                               'bg-red-100 text-red-800': token.status === 'expired'
                                           }"
-                                          x-text="token.status_text"></span>
+                                          x-text="getStatusText(token.status)"></span>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     <div class="text-sm" :class="darkMode ? 'text-gray-300' : 'text-gray-900'">
@@ -155,15 +178,20 @@
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm">
                                     <div class="flex space-x-2">
-                                        <button @click="viewToken(token)" 
+                                        <!-- Test Button -->
+                                        <button type="button" @click="console.log('Test clicked!')" 
+                                                class="text-purple-600 hover:text-purple-900 font-medium">
+                                            اختبار
+                                        </button>
+                                        <button type="button" @click="viewToken(token)" 
                                                 class="text-blue-600 hover:text-blue-900 font-medium">
                                             عرض
                                         </button>
-                                        <button @click="editToken(token)" 
+                                        <button type="button" @click="editToken(token)" 
                                                 class="text-indigo-600 hover:text-indigo-900 font-medium">
                                             تعديل
                                         </button>
-                                        <button @click="revokeToken(token)" 
+                                        <button type="button" @click="revokeToken(token)" 
                                                 x-show="token.status === 'active'"
                                                 class="text-red-600 hover:text-red-900 font-medium">
                                             إلغاء
@@ -198,12 +226,16 @@
             return {
                 darkMode: false,
                 tokens: [],
+                filteredTokens: [],
+                clients: [],
+                selectedClient: '',
                 statistics: {},
                 loading: false,
                 
                 init() {
                     this.darkMode = document.body.classList.contains('dark-mode');
                     this.loadTokens();
+                    this.loadClients();
                     this.loadStatistics();
                 },
                 
@@ -211,13 +243,36 @@
                     this.loading = true;
                     try {
                         // Use tokens data passed from controller instead of API call
+                        console.log('Loading tokens data...');
                         this.tokens = @json($tokens);
+                        console.log('Tokens loaded:', this.tokens);
                         this.filteredTokens = [...this.tokens];
+                        console.log('Filtered tokens:', this.filteredTokens);
                     } catch (error) {
                         console.error('Failed to load tokens:', error);
                         this.$root.showNotification('فشل تحميل التوكنات', 'error');
                     } finally {
                         this.loading = false;
+                    }
+                },
+                
+                async loadClients() {
+                    try {
+                        // Use clients data passed from controller instead of API call
+                        this.clients = @json($clients);
+                    } catch (error) {
+                        console.error('Failed to load clients:', error);
+                        this.$root.showNotification('فشل تحميل العملاء', 'error');
+                    }
+                },
+                
+                filterTokensByClient() {
+                    if (this.selectedClient === '') {
+                        this.filteredTokens = [...this.tokens];
+                    } else {
+                        this.filteredTokens = this.tokens.filter(token => 
+                            token.client_id == this.selectedClient
+                        );
                     }
                 },
                 
@@ -246,16 +301,17 @@
                 },
                 
                 viewToken(token) {
-                    this.$root.showNotification(`عرض التوكن: ${token.name}`, 'info');
+                    console.log('View token clicked:', token.id);
                     window.location.href = `/tokens/${token.id}`;
                 },
                 
                 editToken(token) {
-                    this.$root.showNotification(`تعديل التوكن: ${token.name}`, 'info');
+                    console.log('Edit token clicked:', token.id);
                     window.location.href = `/tokens/${token.id}/edit`;
                 },
                 
                 async revokeToken(token) {
+                    console.log('Revoking token:', token);
                     if (confirm(`هل أنت متأكد من إلغاء التوكن "${token.name}"؟`)) {
                         try {
                             const response = await fetch(`/api/tokens/${token.id}/revoke`, {
@@ -266,7 +322,8 @@
                             });
                             
                             if (response.ok) {
-                                this.$root.showNotification(`تم إلغاء التوكن "${token.name}" بنجاح`, 'success');
+                                console.log('Token revoked successfully');
+                                alert('تم إلغاء التوكن بنجاح');
                                 this.loadTokens();
                                 this.loadStatistics();
                             } else {
@@ -274,7 +331,7 @@
                             }
                         } catch (error) {
                             console.error('Failed to revoke token:', error);
-                            this.$root.showNotification('فشل إلغاء التوكن', 'error');
+                            alert('فشل إلغاء التوكن');
                         }
                     }
                 }

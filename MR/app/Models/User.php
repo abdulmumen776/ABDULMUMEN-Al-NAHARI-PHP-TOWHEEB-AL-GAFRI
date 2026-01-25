@@ -45,4 +45,12 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+
+    /**
+     * Get the API tokens for the user.
+     */
+    public function apiTokens()
+    {
+        return $this->hasMany(ApiToken::class);
+    }
 }
