@@ -43,16 +43,16 @@
                         <!-- Basic Information -->
                         <div class="bg-white rounded-xl shadow-lg p-6" :class="darkMode ? 'bg-gray-800' : ''">
                             <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-4">معلومات أساسية</h3>
-                            
+
                             <div class="space-y-4">
                                 <div>
                                     <label for="name" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                                         اسم الـ API <span class="text-red-500">*</span>
                                     </label>
-                                    <x-input 
-                                        type="text" 
-                                        name="name" 
-                                        id="name" 
+                                    <x-input
+                                        type="text"
+                                        name="name"
+                                        id="name"
                                         required
                                         placeholder="أدخل اسم الـ API"
                                         model="form.name"
@@ -93,9 +93,9 @@
                                     <label for="version" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                                         الإصدار
                                     </label>
-                                    <x-input 
-                                        type="text" 
-                                        name="version" 
+                                    <x-input
+                                        type="text"
+                                        name="version"
                                         id="version"
                                         placeholder="v1.0.0"
                                         model="form.version"
@@ -108,16 +108,16 @@
                         <!-- Endpoint Information -->
                         <div class="bg-white rounded-xl shadow-lg p-6" :class="darkMode ? 'bg-gray-800' : ''">
                             <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-4">معلومات النقطة النهائية</h3>
-                            
+
                             <div class="space-y-4">
                                 <div>
                                     <label for="base_url" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                                         الرابط الأساسي <span class="text-red-500">*</span>
                                     </label>
-                                    <x-input 
-                                        type="url" 
-                                        name="base_url" 
-                                        id="base_url" 
+                                    <x-input
+                                        type="url"
+                                        name="base_url"
+                                        id="base_url"
                                         required
                                         placeholder="https://api.example.com"
                                         model="form.base_url"
@@ -130,10 +130,10 @@
                                     <label for="endpoint" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                                         المسار <span class="text-red-500">*</span>
                                     </label>
-                                    <x-input 
-                                        type="text" 
-                                        name="endpoint" 
-                                        id="endpoint" 
+                                    <x-input
+                                        type="text"
+                                        name="endpoint"
+                                        id="endpoint"
                                         required
                                         placeholder="/api/v1/users"
                                         model="form.endpoint"
@@ -161,9 +161,9 @@
                                     <label for="timeout" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                                         المهلة الزمنية (بالثواني)
                                     </label>
-                                    <x-input 
-                                        type="number" 
-                                        name="timeout" 
+                                    <x-input
+                                        type="number"
+                                        name="timeout"
                                         id="timeout"
                                         placeholder="30"
                                         model="form.timeout"
@@ -179,7 +179,7 @@
                         <!-- Authentication -->
                         <div class="bg-white rounded-xl shadow-lg p-6" :class="darkMode ? 'bg-gray-800' : ''">
                             <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-4">المصادقة والأمان</h3>
-                            
+
                             <div class="space-y-4">
                                 <div>
                                     <label for="auth_type" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -200,9 +200,9 @@
                                     <label for="auth_token" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                                         التوكن
                                     </label>
-                                    <x-input 
-                                        type="password" 
-                                        name="auth_token" 
+                                    <x-input
+                                        type="password"
+                                        name="auth_token"
                                         id="auth_token"
                                         placeholder="أدخل التوكن"
                                         model="form.auth_token"
@@ -214,9 +214,9 @@
                                     <label for="auth_username" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                                         اسم المستخدم
                                     </label>
-                                    <x-input 
-                                        type="text" 
-                                        name="auth_username" 
+                                    <x-input
+                                        type="text"
+                                        name="auth_username"
                                         id="auth_username"
                                         placeholder="أدخل اسم المستخدم"
                                         model="form.auth_username"
@@ -228,9 +228,9 @@
                                     <label for="auth_password" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                                         كلمة المرور
                                     </label>
-                                    <x-input 
-                                        type="password" 
-                                        name="auth_password" 
+                                    <x-input
+                                        type="password"
+                                        name="auth_password"
                                         id="auth_password"
                                         placeholder="أدخل كلمة المرور"
                                         model="form.auth_password"
@@ -242,9 +242,9 @@
                                     <label for="oauth_client_id" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                                         Client ID
                                     </label>
-                                    <x-input 
-                                        type="text" 
-                                        name="oauth_client_id" 
+                                    <x-input
+                                        type="text"
+                                        name="oauth_client_id"
                                         id="oauth_client_id"
                                         placeholder="أدخل Client ID"
                                         model="form.oauth_client_id"
@@ -256,9 +256,9 @@
                                     <label for="oauth_client_secret" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                                         Client Secret
                                     </label>
-                                    <x-input 
-                                        type="password" 
-                                        name="oauth_client_secret" 
+                                    <x-input
+                                        type="password"
+                                        name="oauth_client_secret"
                                         id="oauth_client_secret"
                                         placeholder="أدخل Client Secret"
                                         model="form.oauth_client_secret"
@@ -271,15 +271,15 @@
                         <!-- Monitoring Settings -->
                         <div class="bg-white rounded-xl shadow-lg p-6" :class="darkMode ? 'bg-gray-800' : ''">
                             <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-4">إعدادات المراقبة</h3>
-                            
+
                             <div class="space-y-4">
                                 <div>
                                     <label for="monitoring_interval" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                                         فترة المراقبة (بالدقائق)
                                     </label>
-                                    <x-input 
-                                        type="number" 
-                                        name="monitoring_interval" 
+                                    <x-input
+                                        type="number"
+                                        name="monitoring_interval"
                                         id="monitoring_interval"
                                         placeholder="5"
                                         model="form.monitoring_interval"
@@ -291,9 +291,9 @@
                                     <label for="retry_count" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                                         عدد المحاولات
                                     </label>
-                                    <x-input 
-                                        type="number" 
-                                        name="retry_count" 
+                                    <x-input
+                                        type="number"
+                                        name="retry_count"
                                         id="retry_count"
                                         placeholder="3"
                                         model="form.retry_count"
@@ -305,9 +305,9 @@
                                     <label for="success_threshold" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                                         عتبة النجاح (ms)
                                     </label>
-                                    <x-input 
-                                        type="number" 
-                                        name="success_threshold" 
+                                    <x-input
+                                        type="number"
+                                        name="success_threshold"
                                         id="success_threshold"
                                         placeholder="1000"
                                         model="form.success_threshold"
@@ -319,9 +319,9 @@
                                     <label for="error_threshold" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                                         عتبة الخطأ (ms)
                                     </label>
-                                    <x-input 
-                                        type="number" 
-                                        name="error_threshold" 
+                                    <x-input
+                                        type="number"
+                                        name="error_threshold"
                                         id="error_threshold"
                                         placeholder="5000"
                                         model="form.error_threshold"
@@ -334,7 +334,7 @@
                         <!-- Headers -->
                         <div class="bg-white rounded-xl shadow-lg p-6" :class="darkMode ? 'bg-gray-800' : ''">
                             <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-4">الرؤوس الافتراضية</h3>
-                            
+
                             <div class="space-y-4">
                                 <div>
                                     <label for="headers" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -351,7 +351,7 @@
                         <!-- Description -->
                         <div class="bg-white rounded-xl shadow-lg p-6" :class="darkMode ? 'bg-gray-800' : ''">
                             <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-4">الوصف والملاحظات</h3>
-                            
+
                             <div class="space-y-4">
                                 <div>
                                     <label for="description" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -378,7 +378,7 @@
                         <!-- Settings -->
                         <div class="bg-white rounded-xl shadow-lg p-6" :class="darkMode ? 'bg-gray-800' : ''">
                             <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-4">الإعدادات المتقدمة</h3>
-                            
+
                             <div class="space-y-4">
                                 <div class="flex items-center justify-between">
                                     <div>
@@ -480,15 +480,15 @@
                     log_performance: {{ $api->log_performance ?? true }},
                     health_checks: {{ $api->health_checks ?? true }}
                 },
-                
+
                 init() {
                     // Initialize form with API data
                 },
-                
+
                 async submitForm() {
                     this.loading = true;
                     this.errors = {};
-                    
+
                     // Submit form normally
                     event.target.submit();
                 }
