@@ -15,15 +15,15 @@
 @section('content')
     <div x-data="apiEdit()" x-init="init()" x-cloak>
         <!-- Header Section -->
-        <div class="card p-8 mb-8 bg-gradient-to-r from-teal-500 to-cyan-600 text-white">
+        <div class="bg-white rounded-xl shadow-lg p-6 mb-6" :class="darkMode ? 'bg-gray-800' : ''">
             <div class="flex items-center justify-between">
                 <div>
-                    <h1 class="text-3xl font-bold mb-2">تعديل الـ API</h1>
-                    <p class="text-teal-100">تحديث معلومات الـ API الحالي في النظام</p>
+                    <h1 class="text-3xl font-bold mb-2 text-gray-800 dark:text-gray-200">تعديل الـ API</h1>
+                    <p class="text-gray-600 dark:text-gray-400">تحديث معلومات الـ API الحالي في النظام</p>
                 </div>
                 <div class="hidden lg:block">
-                    <div class="w-24 h-24 bg-white bg-opacity-20 rounded-full flex items-center justify-center">
-                        <svg class="w-12 h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <div class="w-24 h-24 bg-blue-100 dark:bg-gray-700 rounded-full flex items-center justify-center">
+                        <svg class="w-12 h-12 text-blue-600 dark:text-gray-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h14a2 2 0 002-2v-11a2 2 0 00-2-2H6a2 2 0 00-2-2z"></path>
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 11H6m3 0h18M9 11v6m0 4h.01M15 17H9"></path>
                         </svg>
@@ -33,7 +33,7 @@
         </div>
 
         <!-- Form Section -->
-        <div class="card p-8">
+        <div class="bg-white rounded-xl shadow-lg p-8" :class="darkMode ? 'bg-gray-800' : ''">
             <form action="{{ route('apis.update', $api) }}" method="POST" @submit.prevent="submitForm">
                 @csrf
                 @method('PUT')

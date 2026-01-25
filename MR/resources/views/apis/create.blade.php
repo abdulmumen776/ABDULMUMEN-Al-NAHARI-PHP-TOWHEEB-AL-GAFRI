@@ -15,15 +15,15 @@
 @section('content')
     <div x-data="apiForm()" x-init="init()" x-cloak>
         <!-- Header Section -->
-        <div class="card p-8 mb-8 bg-gradient-to-r from-teal-500 to-cyan-600 text-white">
+        <div class="bg-white rounded-xl shadow-lg p-6 mb-6" :class="darkMode ? 'bg-gray-800' : ''">
             <div class="flex items-center justify-between">
                 <div>
-                    <h1 class="text-3xl font-bold mb-2">إضافة API جديد</h1>
-                    <p class="text-teal-100">أدخل معلومات الـ API الجديد لإضافته إلى النظام</p>
+                    <h1 class="text-3xl font-bold mb-2 text-gray-800 dark:text-gray-200">إضافة API جديد</h1>
+                    <p class="text-gray-600 dark:text-gray-400">أدخل معلومات الـ API الجديد لإضافته إلى النظام</p>
                 </div>
                 <div class="hidden lg:block">
-                    <div class="w-24 h-24 bg-white bg-opacity-20 rounded-full flex items-center justify-center">
-                        <svg class="w-12 h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <div class="w-24 h-24 bg-blue-100 dark:bg-gray-700 rounded-full flex items-center justify-center">
+                        <svg class="w-12 h-12 text-blue-600 dark:text-gray-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path>
                         </svg>
                     </div>
@@ -32,7 +32,7 @@
         </div>
 
         <!-- Form Section -->
-        <div class="card p-8">
+        <div class="bg-white rounded-xl shadow-lg p-8" :class="darkMode ? 'bg-gray-800' : ''">
             <form action="{{ route('apis.store') }}" method="POST" @submit.prevent="submitForm">
                 @csrf
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
